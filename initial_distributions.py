@@ -65,7 +65,7 @@ def build_2d_beta(alpha=(2, 2), beta=(2, 2), size=100):
 
     # Generating a beta bivariate distribution
     # with given shape parameters
-    distr = stats.beta(a=[alpha[0], alpha[1]], b=[beta[0], beta[1]])
+    pdf = stats.beta(a=alpha[0], b=beta[0])
 
     # Generating a meshgrid
     x = np.linspace(0, 1, num=size)
@@ -74,12 +74,40 @@ def build_2d_beta(alpha=(2, 2), beta=(2, 2), size=100):
 
     # Generating the density function
     # for each point in the meshgrid
-    pdf = distr.pdf(np.stack([X, Y], axis=-1))
+    # pdf = joint.pdf(np.stack([X, Y], axis=-1))
 
     return pdf, X, Y
 
 
+def multi_valley():
+    mean1 = [0, 0]
+    cov1 = [[4, 0],
+            [0, 3]]
 
+    # Define the parameters for the second peak
+    mean2 = [5, 5]
+    cov2 = [[4, 0.9],
+            [0.6, 3]]
+
+    # Create the first peak distribution
+    dist1 = stats.multivariate_normal(mean=mean1, cov=cov1)
+
+    # Create the second peak distribution
+    dist2 = stats.multivariate_normal(mean=mean2, cov=cov2)
+
+    # Create a grid of points
+    x = np.linspace(-5, 8, 100)
+    y = np.linspace(-5, 8, 100)
+    X, Y = np.meshgrid(x, y)
+
+    # Evaluate the density at each point in the grid
+    Z1 = dist1.pdf(np.dstack((X, Y)))
+    Z2 = dist2.pdf(np.dstack((X, Y)))
+
+    # Combine the densities from both peaks
+    Z = Z1 / 2 + Z2
+    Z = Z * -1 + np.max(Z)
+    return Z, X, Y
 
 
 def plot_distribution(pdf, X, Y, args):
@@ -111,5 +139,6 @@ def plot_distribution(pdf, X, Y, args):
 
 if __name__ == "__main__":
     size = 100
+
     psi_0, X, Y = build_2d_beta(size=size)
     plot_distribution(psi_0, X, Y,"alpha=(2, 2), beta=(2, 2), size=100)")
