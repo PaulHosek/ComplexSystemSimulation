@@ -79,7 +79,7 @@ def build_2d_beta(alpha=(2, 2), beta=(2, 2), size=100):
     return pdf, X, Y
 
 
-def multi_valley():
+def multi_valley(size = 100):
     mean1 = [0, 0]
     cov1 = [[4, 0],
             [0, 3]]
@@ -96,8 +96,8 @@ def multi_valley():
     dist2 = stats.multivariate_normal(mean=mean2, cov=cov2)
 
     # Create a grid of points
-    x = np.linspace(-5, 8, 100)
-    y = np.linspace(-5, 8, 100)
+    x = np.linspace(-5, 8, size)
+    y = np.linspace(-5, 8, size)
     X, Y = np.meshgrid(x, y)
 
     # Evaluate the density at each point in the grid
