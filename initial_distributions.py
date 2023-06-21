@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
+import imageio.v3 as iio
 
 
 
@@ -79,15 +80,8 @@ def build_2d_beta(alpha=(2, 2), beta=(2, 2), size=100):
     return pdf, X, Y
 
 
-def multi_valley():
-    mean1 = [0, 0]
-    cov1 = [[4, 0],
-            [0, 3]]
-
-    # Define the parameters for the second peak
-    mean2 = [5, 5]
-    cov2 = [[4, 0.9],
-            [0.6, 3]]
+def multi_valley(mean1=(0, 0), mean2=(5, 5), cov1=([4, 0], [0, 3]),
+                 cov2=([4, 0.9], [0.6, 3]),size=125):
 
     # Create the first peak distribution
     dist1 = stats.multivariate_normal(mean=mean1, cov=cov1)
@@ -96,8 +90,8 @@ def multi_valley():
     dist2 = stats.multivariate_normal(mean=mean2, cov=cov2)
 
     # Create a grid of points
-    x = np.linspace(-5, 8, 100)
-    y = np.linspace(-5, 8, 100)
+    x = np.linspace(-5, 8, size)
+    y = np.linspace(-5, 8, size)
     X, Y = np.meshgrid(x, y)
 
     # Evaluate the density at each point in the grid
@@ -105,9 +99,20 @@ def multi_valley():
     Z2 = dist2.pdf(np.dstack((X, Y)))
 
     # Combine the densities from both peaks
-    Z = Z1 / 2 + Z2
-    Z = Z * -1 + np.max(Z)
-    return Z, X, Y
+    pdf = Z1 / 2 + Z2
+    pdf = pdf * -1 + np.max(pdf)
+    return pdf, X, Y
+
+
+def luetje_initial_cond():
+    """
+    Read in image from the Lutje paper after 5 days.
+    Values are between 0-255.
+    :return: 2D np array
+    """
+
+
+    return iio.imread('luetjesinit.png')[:,:,1]
 
 
 def plot_distribution(pdf, X, Y, args):
