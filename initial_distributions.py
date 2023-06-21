@@ -80,6 +80,15 @@ def build_2d_beta(alpha=(2, 2), beta=(2, 2), size=100):
     return pdf, X, Y
 
 
+def multi_valley(size = 100):
+    mean1 = [0, 0]
+    cov1 = [[4, 0],
+            [0, 3]]
+
+    # Define the parameters for the second peak
+    mean2 = [5, 5]
+    cov2 = [[4, 0.9],
+            [0.6, 3]]
 def multi_valley(mean1=(0, 0), mean2=(5, 5), cov1=([4, 0], [0, 3]),
                  cov2=([4, 0.9], [0.6, 3]),size=125):
 
