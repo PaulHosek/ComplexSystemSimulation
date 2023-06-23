@@ -22,6 +22,8 @@ class CA_model:
         self.dt = dt  # time increment
         self.dx = dx  # space increment
 
+        assert h.shape == Ht.shape, "Ice and Water lattice are not the same shape."
+
         # define constants to use
         self.H_ref = 0
         self.g = 9.832  # [m/s^2] gravitational acceleration at the poles

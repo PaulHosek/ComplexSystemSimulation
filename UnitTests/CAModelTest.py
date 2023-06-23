@@ -88,7 +88,36 @@ class CAModelTest(unittest.TestCase):
 
         np.testing.assert_array_equal(actual_m, expected_m)
 
-    # Add more test methods as needed
+    def test_melt_drain(self):
+        Ht = np.array([[0.5, 0.6], [0.7, 0.8]])
+        h = np.array([[0.1, 0.2], [0.3, 0.4]])
+        dt = 0.01
+        dx = 0.1
+
+        model = CA_model(Ht, h, dt, dx)
+        model.m = model.melt_rate()
+
+        expected_h = model.h + model.dt * (model.m * (model.rho_ice / model.rho_water) - model.s)
+
+        actual_h = model.melt_drain()
+
+        np.testing.assert_array_equal(actual_h, expected_h)
+
+    def test_gradient(self):
+        x = np.array([[0.0, 2.0, 3.0],
+                      [4.0, 3.5, 6.0]])
+        roll = 1
+        axis = 1
+        dx = 1
+
+        model = CA_model(None, None, None, dx)
+
+        expected_grad = np.array([[3., -2., -1.],
+                                  [2., 0.5, -2.5]])
+
+        actual_grad = model.gradient(x, roll, axis)
+
+        np.testing.assert_array_equal(actual_grad, expected_grad)
 
 
 if __name__ == '__main__':
