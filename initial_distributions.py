@@ -119,8 +119,6 @@ def luetje_initial_cond():
     Values are between 0-255.
     :return: 2D np array
     """
-
-
     return iio.imread('luetjesinit.png')[:,:,1]
 
 
