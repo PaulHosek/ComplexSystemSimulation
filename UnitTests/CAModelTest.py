@@ -2,6 +2,7 @@ import unittest
 import numpy as np
 from CA_model import CA_model
 
+
 class CAModelTest(unittest.TestCase):
 
     def test_init(self):
@@ -17,7 +18,7 @@ class CAModelTest(unittest.TestCase):
         self.assertEqual(model.dx, dx)
 
     def test_constants(self):
-        filler_array = np.ones((2,2))
+        filler_array = np.ones((2, 2))
         model = CA_model(filler_array, filler_array, 1, 1)
 
         self.assertEqual(model.g, 9.832, msg="Gravitational acceleration value is incorrect.")
@@ -30,36 +31,51 @@ class CAModelTest(unittest.TestCase):
         self.assertAlmostEqual(model.m_p, 2.314814814814815e-07, msg="Max ice melt rate under pond value is incorrect.")
         self.assertEqual(model.h_max, 0.1, msg="Depth to which melting increases value is incorrect.")
 
+    def test_calc_psi(self):
+        Ht = np.array([[1, 1],
+                       [1, 1]])
+        h = np.array([[0, 1],
+                      [0, 2]])
+        H_ref = 0
+        dt = 0.01
+        dx = 0.1
 
-    # def test_calc_psi(self):
-    #     Ht = np.array([[0.5, 0.6],
-    #                    [0.7, 0.8]])
-    #     h = np.array([[0.1, 0.2],
-    #                   [0.3, 0.4]])
-    #     dt = 0.01
-    #     dx = 0.1
-    #
-    #     model = CA_model(Ht, h, dt, dx)
-    #
-    #     psi = model.calc_psi()
-    #
-    #     expected_psi = np.array([[1.1, 1.3], [1.5, 1.7]])
-    #     self.assertTrue(np.array_equal(psi, expected_psi))
+        model = CA_model(Ht, h, dt, dx)
 
-    # def test_melt_rate(self):
-    #     Ht = np.array([[0.5, 0.6], [0.7, 0.8]])
-    #     h = np.array([[0.1, 0.2], [0.3, 0.4]])
-    #     dt = 0.01
-    #     dx = 0.1
-    #
-    #     model = CA_model(Ht, h, dt, dx)
-    #
-    #     melt_rate = model.melt_rate()
-    #
-    #     expected_melt_rate = np.array([[0.00040004, 0.00080008], [0.00120012, 0.00160016]])
-    #     self.assertTrue(np.allclose(melt_rate, expected_melt_rate))
+        psi = model.calc_psi()
+        expected_psi = Ht + h - H_ref
+
+        self.assertTrue(np.array_equal(psi, expected_psi))
+
+    def test_melt_rate(self):
+        Ht = np.array([[0.5, 0.6],
+                       [0.7, 0.8]])
+        h = np.array([[0, 0.2],
+                      [0.3, 0]])
+
+        dt = 0.01
+        dx = 0.1
+        m_i = 0.012 / (3600 * 24)  # unponded ice melt rate [m/s]
+        m_p = 0.02 / (3600 * 24)  # max ice melt rate under pond [m/s]
+        h_max = 0.1
+
+        model = CA_model(Ht, h, dt, dx)
+
+        melt_rate = model.melt_rate()
+
+        def test_melt_single(h_i, h_max, m_p, m_i):
+            if h_i > h_max:
+                return (1 + m_p / m_i) * m_i
+            else:
+                return (1 + m_p / m_i * h_i / h_max) * m_i
+
+        expected_melt_rate = np.array(list(map(lambda h_i: test_melt_single(h_i, h_max, m_p, m_i),
+                                               h.flatten()))).reshape(h.shape)
+
+        self.assertTrue(np.allclose(melt_rate, expected_melt_rate))
 
     # Add more test methods as needed
+
 
 if __name__ == '__main__':
     unittest.main()
