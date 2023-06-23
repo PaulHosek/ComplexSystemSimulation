@@ -11,8 +11,7 @@ class CAModelTest(unittest.TestCase):
         dx = 0.1
 
         model = CA_model(Ht, h, dt, dx)
-
-        self.assertTrue(np.allcose(model.Ht, Ht))
+        self.assertTrue(np.allclose(model.Ht, Ht))
         self.assertTrue(np.allclose(model.h, h))
         self.assertEqual(model.dt, dt)
         self.assertEqual(model.dx, dx)
