@@ -72,7 +72,21 @@ class CAModelTest(unittest.TestCase):
         expected_melt_rate = np.array(list(map(lambda h_i: test_melt_single(h_i, h_max, m_p, m_i),
                                                h.flatten()))).reshape(h.shape)
 
-        self.assertTrue(np.allclose(melt_rate, expected_melt_rate))
+        self.assertTrue(np.allclose(melt_rate, expected_melt_rate), msg="Melt rate is incorrect.")
+
+    def test_melt_rate_neighbors(self):
+        Ht = np.array([[0.5, 0.6], [0.7, 0.8]])
+        h = np.array([[0.1, 0.2], [0.3, 0.4]])
+        dt = 0.01
+        dx = 0.1
+
+        model = CA_model(Ht, h, dt, dx)
+
+        expected_m = np.where(model.melt_rate_neighbors() > model.m, model.melt_rate_neighbors(), model.m)
+
+        actual_m = model.melt_rate_neighbors()
+
+        np.testing.assert_array_equal(actual_m, expected_m)
 
     # Add more test methods as needed
 
