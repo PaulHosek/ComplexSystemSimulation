@@ -7,6 +7,13 @@ class CA_model:
     '''
 
     def __init__(self, Ht, h, dt, dx) -> None:
+        """
+
+        :param Ht: 2D np array, same shape as h, initial ice height
+        :param h: 2D np array, same shape as h, initial water level
+        :param dt: int, time increment in seconds. Large values may be unstable.
+        :param dx: int, side length of an ice column in the CA.
+        """
 
         # assign input parameters
         self.m = None
