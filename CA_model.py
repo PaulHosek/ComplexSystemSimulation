@@ -22,7 +22,7 @@ class CA_model:
         self.dt = dt  # time increment
         self.dx = dx  # space increment
 
-        assert h.shape == Ht.shape, "Ice and Water lattice are not the same shape."
+        assert h.shape == Ht.shape, f"Ice {Ht.shape} and Water {h.shape} lattice are not the same shape:"
 
         # define constants to use
         self.H_ref = 0

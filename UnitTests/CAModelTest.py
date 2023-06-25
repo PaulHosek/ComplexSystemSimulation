@@ -104,18 +104,18 @@ class CAModelTest(unittest.TestCase):
         np.testing.assert_array_equal(actual_h, expected_h)
 
     def test_gradient(self):
-        x = np.array([[0.0, 2.0, 3.0],
+        h = np.array([[0.0, 2.0, 3.0],
                       [4.0, 3.5, 6.0]])
+        Ht = np.ones((3,2))
         roll = 1
         axis = 1
-        dx = 1
 
-        model = CA_model(None, None, None, dx)
+        model = CA_model(h, Ht, 1, 1)
 
         expected_grad = np.array([[3., -2., -1.],
                                   [2., 0.5, -2.5]])
 
-        actual_grad = model.gradient(x, roll, axis)
+        actual_grad = model.gradient(h, roll, axis)
 
         np.testing.assert_array_equal(actual_grad, expected_grad)
 
