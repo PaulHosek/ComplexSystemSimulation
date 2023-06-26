@@ -137,6 +137,67 @@ def plot_distribution(pdf, X, Y, args):
     plt.tight_layout()
     plt.show()
 
+def order_distribution(control_parameter, size):
+    """
+    Generate distribution with some order value.
+    Log(control_parameter) maps linearly to the entropy-based order parameter.
+    Output distribution will consist of uniformly distributed numbers in the half-open interval [0.0, 1.0).
+    :param control_parameter (float): In [0,1]. Determins the order of the topology.
+    :param size (int): Sidelength of the topology.
+    :return (2d np.array): Topology; z-lattice only.
+    """
+
+    random_distribution = np.random.random((size, size))
+    uniform = np.zeros((size, size))
+    num_elements = int(size * size * control_parameter)
+    indices = np.random.choice(size * size, size=num_elements, replace=False)
+    uniform.flat[indices] = random_distribution.flat[indices]
+    return uniform
+
+
+def calculate_order_parameter(distribution=None, control_parameter=None, size=100):
+    """
+    Calculate the order parameter for a given control parameter or 2d Distribution.
+    Order parameter is transformed mean entropy of the system.
+    Scales linearly with control parameter. Is min-max scaled.
+    :param control_parameter (float): The control parameter that influences the level of order.
+    :return: Order parameter value.
+    """
+    if distribution is None and control_parameter is None:
+        print(control_parameter)
+        raise Exception("Provide either an input distribution or a control parameter.")
+    if distribution:
+        assert len(distribution.shape) == 2, "Input distribution is not 2D."
+        size = len(distribution)
+    if control_parameter:
+        random_distribution = np.random.random((size, size))
+        distribution = np.zeros((size, size))
+        num_elements = int(size * size * control_parameter)
+        indices = np.random.choice(size * size, size=num_elements, replace=False)
+        distribution.flat[indices] = random_distribution.flat[indices]
+
+    order_parameter = (np.nanmean(stats.entropy(distribution)))
+    min_order = 2.05625
+    max_order = 4.41097
+    return (order_parameter - min_order) / (max_order - min_order) * (np.log(100)/np.log(size))
+
+def plot_control_order_curve():
+    """
+    Plot the relationship of order and control parameter.
+    :return: None
+    """
+    control_parameter_range = np.linspace(0.1, 1, 20)
+    order_parameters = []
+
+    for control_parameter in control_parameter_range:
+        order_parameter = calculate_order_parameter(control_parameter=control_parameter)
+        order_parameters.append(order_parameter)
+
+    plt.plot(control_parameter_range, order_parameters)
+    plt.xlabel("Control Parameter")
+    plt.ylabel("Order Parameter")
+    plt.title("Order Parameter vs Control Parameter")
+    plt.show()
 
 
 if __name__ == "__main__":
