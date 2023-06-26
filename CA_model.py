@@ -181,6 +181,8 @@ class CA_model:
         self.m = self.melt_rate() # calculate the meltrate
         self.h = np.heaviside(self.H, 0) * self.melt_drain() # melt ice and let it seep
         self.H = np.heaviside(self.H, 0) * (self.H - self.dt * self.m) # total ice thickness after melt
+        self.H[[0,-1],:] = 0
+        self.H[:,[0,-1]] = 0
         self.rebalance_floe()
         self.psi = self.calc_psi()
         self.h = np.heaviside(self.H, 0) * (self.h + self.horizontal_flow()) # update water depth after horizontal flow
