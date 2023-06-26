@@ -106,7 +106,7 @@ class CAModelTest(unittest.TestCase):
     def test_gradient(self):
         h = np.array([[0.0, 2.0, 3.0],
                       [4.0, 3.5, 6.0]])
-        Ht = np.ones((3,2))
+        Ht = np.ones((2,3))
         roll = 1
         axis = 1
 
