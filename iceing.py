@@ -51,6 +51,7 @@ def glauber(s = np.array, hi = np.array, N = int):
     
     return s, sums
 
+
 def perim_area(ponds, pond_val = -1, ice_val = 1):
     '''
     Calculates the area and the perimeter of the meltpods
