@@ -43,12 +43,25 @@ with st.sidebar:
 if st.session_state.initialize:
     with st.spinner('Initialize domain..'):
         #initialize model
-        st.session_state.model = iceing_model(input_fraction,300)
+        st.session_state.model = iceing_model(input_fraction,120)
 
         #display initial topology
-        st.session_state.fig,st.session_state.ax = plt.subplots(figsize=(5,5))
+        # st.session_state.fig,st.session_state.ax = plt.subplots(figsize=(5,5))
 
-        plt.imshow(st.session_state.model.s,cmap=cmap,norm=norm)
+        st.session_state.fig = plt.figure(constrained_layout=True)
+        st.session_state.axs = st.session_state.fig.subplot_mosaic([['Left', 'TopRight'],['Left', 'BottomRight']],
+                          gridspec_kw={'width_ratios':[2, 1]})
+        
+        st.session_state.axs['Left'].set_title('Meltponds')
+        st.session_state.axs['TopRight'].set_title('Sum of Ponds')
+        st.session_state.axs['BottomRight'].set_title('Perimeters')
+
+        st.session_state.axs['Left'].imshow(st.session_state.model.s,cmap=cmap,norm=norm)
+
+        # #calculate the perim area and plot
+        areas, perimeters = perim_area(st.session_state.model.s, pond_val = -1, ice_val = 1)
+        st.session_state.axs['BottomRight'].scatter(areas,perimeters)
+
         st.pyplot(st.session_state.fig)
 
         
@@ -61,21 +74,36 @@ if st.session_state.start_sim_clicked:
                 while not st.session_state.stop_sim_clicked:
 
                     #run the simulation for x timesteps
-                    new_state,sums = glauber(st.session_state.model.s,st.session_state.model.hi,1000)
+                    new_state,st.session_state.sums = glauber(st.session_state.model.s,st.session_state.model.hi,800)
                     st.session_state.model.s = new_state
 
                     #display new state
-                    st.session_state.fig,st.session_state.ax = plt.subplots(figsize=(5,5))
-                    plt.imshow(st.session_state.model.s,cmap=cmap,norm=norm)
-                    st.pyplot(st.session_state.fig,clear_figure=True)
+                    st.session_state.axs['Left'].imshow(st.session_state.model.s,cmap=cmap,norm=norm)
 
-                    # #calculate the perim area and plot
-                    # areas, perimeters = perim_area(new_state, pond_val = -1, ice_val = 1)
-                    # print(areas,perimeters)
-                    # st.pyplot(plt.scatter(areas, perimeters))
+                    #calculate the perim area and plot
+                    areas, perimeters = perim_area(st.session_state.model.s, pond_val = -1, ice_val = 1)
+                    st.session_state.axs['BottomRight'].scatter(areas,perimeters)
+                    st.session_state.axs["TopRight"].plot(st.session_state.sums)
+
+                    #plot the sum of ponds
+                    st.pyplot(st.session_state.fig)
+
 
     #plot latest state
-    st.session_state.fig,st.session_state.ax = plt.subplots(figsize=(5,5))
-    plt.imshow(st.session_state.model.s,cmap=cmap,norm=norm)
+    st.session_state.fig = plt.figure(constrained_layout=True)
+    st.session_state.axs = st.session_state.fig.subplot_mosaic([['Left', 'TopRight'],['Left', 'BottomRight']],
+                          gridspec_kw={'width_ratios':[2, 1]})
+    st.session_state.axs['Left'].imshow(st.session_state.model.s,cmap=cmap,norm=norm)
+
+    st.session_state.axs['Left'].set_title('Meltponds')
+    st.session_state.axs['TopRight'].set_title('Sum of Ponds')
+    st.session_state.axs['BottomRight'].set_title('Perimeters')
+
+    #calculate the perim area and plot
+    areas, perimeters = perim_area(st.session_state.model.s, pond_val = -1, ice_val = 1)
+    st.session_state.axs['BottomRight'].scatter(areas,perimeters)
+    st.session_state.axs["TopRight"].plot(st.session_state.sums)
+
+    #plot the sum of ponds
     st.pyplot(st.session_state.fig)
 
