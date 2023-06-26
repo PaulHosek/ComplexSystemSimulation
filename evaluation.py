@@ -1,5 +1,7 @@
 import numpy as np
 import scipy.ndimage as ndimage
+from numba import njit
+from scipy.optimize import curve_fit
 
 def perim_area(ponds, pond_val=-1, ice_val=1):
     '''
@@ -24,7 +26,6 @@ def perim_area(ponds, pond_val=-1, ice_val=1):
     length = len(clusters)
     areas = np.zeros(length)
     perimeters = np.zeros(length)
-    dimensions = np.zeros(length)
 
     rows, cols = ponds.shape
 
@@ -87,3 +88,56 @@ def detect_percolation(grid, sidelength):
             return True, np.ma.masked_where(labels != cluster_id,labels)
 
     return False, None
+
+def fractal_dim(ponds, pond_val=-1, ice_val=1, bins = 100):
+
+    # get areas and perimeters
+    areas, perimeters = perim_area(ponds, pond_val = pond_val, ice_val = ice_val)
+
+    # sort arrays
+    areas, perimeters = zip(*sorted(zip(areas, perimeters)))
+    areas = np.array(areas)
+    perimeters = np.array(perimeters)
+
+    # bin data and get the lowest perimeter for fitting
+    areas, perimeters = get_lowest(areas, perimeters, bins = bins)
+
+    # Perform curve fitting
+    fit_params, _ = curve_fit(integral_D, np.log10(areas), np.log10(perimeters), p0=None)
+
+    # calculate the expected values
+    y_expect = D(np.log10(areas),*fit_params[:4])
+
+    return areas, y_expect
+
+# Define the function D(x) and its integral
+def integral_D(x, a1, a2, a3, a4, a5):
+    return (a1 / (2 * a2)) * np.log(np.cosh(a2 * (x - a3))) + (a4 / 2) * x + a5
+
+def D(x, a1, a2, a3, a4):
+    return a1 * np.tanh(a2 * (x - a3)) + a4
+
+def get_lowest(areas_sorted, perimeters_sorted, bins=100):
+
+    _ , area_bins = np.histogram(np.log10(areas_sorted), bins = bins)
+    areas_binned = []
+    min_perimeters = []
+
+    for low, high in zip(area_bins[:-1], area_bins[1:]):
+        
+
+        # Filter the sorted perimeters based on the current bin's area range
+        filtered_perimeters = perimeters_sorted[(np.log10(areas_sorted) >= low) & (np.log10(areas_sorted) < high)]
+
+        # Check if the filtered perimeters array is non-empty
+        if filtered_perimeters.size > 0:
+            # Calculate the minimum perimeter for the current bin
+            min_perimeter = np.min(filtered_perimeters)
+            # Calculate the mean area for the current bin
+            bin_area = np.mean([10**low, 10**high])
+            areas_binned.append(bin_area)
+            min_perimeters.append(min_perimeter)
+
+    return np.array(areas_binned), np.array(min_perimeters)        
+
+
