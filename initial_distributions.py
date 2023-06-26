@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 import imageio.v3 as iio
-
+from scipy import ndimage
 
 
 def build_2d_gaussian(mean=(0,0), covar=0, random_seed=1000, size = 100):
@@ -144,3 +144,95 @@ if __name__ == "__main__":
 
     psi_0, X, Y = build_2d_beta(size=size)
     plot_distribution(psi_0, X, Y,"alpha=(2, 2), beta=(2, 2), size=100)")
+
+# code from Popovic et al., 2020 (https://doi.org/10.1029/2019JC016029)
+# available under https://zenodo.org/record/3930528
+
+"""
+A function to create a synthetic topography. Returns a numpy array of size (res,res).
+    res - size of the output array
+    mode - topography type. Options - 'snow_dune', 'diffusion', and 'rayleigh'
+    tmax - time to diffuse a random configuration in 'diffusion' and 'rayleigh' topographies. Controls the typical length-scale
+    dt - time-step for diffusion in 'diffusion' and 'rayleigh' topographies. If too large, creating a topography may fail
+    g - anisotropy parameter
+    sigma_h - standard deviation of the topography
+    h - mean elevation
+    snow_dune_radius - mean radius of mounds in the 'snow_dune' topography. Controls the typical length-scale
+    Gaussians_per_pixel - density of mounds in the 'snow_dune' topography (number of mounds * snow_dune_radius^2 / res^2)
+    number_of_r_bins - number of categories of mound radii to consider in the 'snow_dune' topography
+    window_size - cutoff parameter for placing mounds in the 'snow_dune' topography
+    snow_dune_height_exponent - exponent that relates mound radius and mound height in the 'snow_dune' topography 
+"""
+
+def Create_Initial_Topography(res = 500, mode = 'snow_dune',tmax = 2,dt = 0.1, g = 1,sigma_h = 1., h = 0., snow_dune_radius = 1., Gaussians_per_pixel = 0.2, 
+                              number_of_r_bins = 150, window_size = 5, snow_dune_height_exponent = 1.):
+                              
+
+    if mode == 'diffusion':
+        t = np.arange(0,tmax,dt)
+        ice_topo = 0.5-np.random.rand(res,res)
+        stencil = np.array([[0, g, 0],[1, -2*(1+g), 1], [0, g, 0]])
+        
+        for i in range(1,len(t)):
+            ice_topo += dt*ndimage.convolve(ice_topo, stencil)
+            
+    if mode == 'rayleigh':
+        t = np.arange(0,tmax,dt)
+        ice_topo1 = 0.5-np.random.rand(res,res)
+        ice_topo2 = 0.5-np.random.rand(res,res)
+        stencil = np.array([[0, g, 0],[1, -2*(1+g), 1], [0, g, 0]])
+        
+        for i in range(1,len(t)):
+            ice_topo1 += dt*ndimage.convolve(ice_topo1, stencil)
+            ice_topo2 += dt*ndimage.convolve(ice_topo2, stencil)
+        
+        ice_topo = np.sqrt(ice_topo1**2+ice_topo2**2)
+        
+    if mode == 'snow_dune':
+        ice_topo = np.zeros([res,res])
+        N = np.ceil((res/snow_dune_radius)**2 * Gaussians_per_pixel).astype(int)
+        r0 = np.random.exponential(snow_dune_radius,N)
+        
+        bins = np.linspace(np.min(r0),np.max(r0),number_of_r_bins+1)
+        r0_bins = np.zeros(number_of_r_bins)
+        r0_N = np.zeros(number_of_r_bins).astype(int)
+        
+        for i in range(1,number_of_r_bins):
+            loc = (r0 >= bins[i-1]) & (r0 < bins[i])
+            r0_bins[i] = np.mean(r0[loc])
+            r0_N[i] = np.sum(loc)
+
+        r0_bins = r0_bins[r0_N>0] 
+        r0_N = r0_N[r0_N>0] 
+        
+        for i in range(len(r0_bins)):
+            r = r0_bins[i]
+            h0 = r**snow_dune_height_exponent / snow_dune_radius**snow_dune_height_exponent
+            cov = np.eye(2); cov[1,1] = g
+            cov *= r**2
+            
+            rv = stats.multivariate_normal([0,0], cov) 
+            
+            x0 = np.random.choice(np.arange(-res/2,res/2),r0_N[i])
+            y0 = np.random.choice(np.arange(-res/2,res/2),r0_N[i])
+        
+            x = np.arange(-np.ceil(r*window_size).astype(int),np.ceil(r*window_size).astype(int)+1)
+            y = x.copy()
+            X,Y = np.meshgrid(x,y)
+            pos = np.empty(X.shape + (2,))
+            pos[:, :, 0] = X; pos[:, :, 1] = Y
+            
+            G = rv.pdf(pos) * 2 * np.pi * np.sqrt(np.linalg.det(cov)) * h0
+            
+            for j in range(r0_N[i]):
+                loc_x = ((pos[:,:,0]+x0[j]) % res).astype(int)
+                loc_y = ((pos[:,:,1]+y0[j]) % res).astype(int)
+        
+                ice_topo[loc_x,loc_y] += G
+        
+    ice_topo /= np.std(ice_topo)
+    ice_topo -= np.mean(ice_topo)
+    ice_topo *= sigma_h
+    ice_topo += h
+    return ice_topo      
+

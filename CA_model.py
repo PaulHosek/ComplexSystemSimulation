@@ -37,7 +37,7 @@ class CA_model:
         self.h_max = 0.1  # depth to which melting increases [m]
 
         # calculate further parameters
-        self.calc_psi()  # surface topography
+        self.psi = self.calc_psi()  # surface topography
         Hb = self.rho_ice / self.rho_water * self.Ht.mean() + self.h.mean()  # initialize model with constant depth Hb
         self.H = self.Ht + Hb  # calculate total ice thickness
         # self.H = self.calc_H0() # total ice thickness
@@ -46,7 +46,7 @@ class CA_model:
         """
         Calculate (initial) psi/ surface-to-reference distance.
         """
-        self.psi = self.Ht + self.h - self.H_ref
+        return self.Ht + self.h - self.H_ref
 
     def melt_rate(self):
         """
@@ -57,7 +57,7 @@ class CA_model:
         return 1+ m_p/m_i * h/h_max
         :return: m
         """
-        self.m = np.where(self.h > self.h_max, 1 + self.m_p / self.m_i,
+        return np.where(self.h > self.h_max, 1 + self.m_p / self.m_i,
                         (1 + self.m_p / self.m_i * self.h / self.h_max)) * self.m_i
 
     def melt_rate_neighbors(self):
@@ -71,7 +71,7 @@ class CA_model:
 
         :return: m
         """
-        self.melt_rate()
+        self.m = self.melt_rate()
 
         # define parameters for the neighbors
         axes = [0, 1]
@@ -168,12 +168,12 @@ class CA_model:
         """
         Forward the model one time step.
         """
-        self.psi = None
-        self.melt_rate()  # calculate the meltrate
-        self.h = np.heaviside(self.H, 0) * self.melt_drain()  # melt ice and let it seep
-        self.H = np.heaviside(self.H, 0) * (self.H - self.dt * self.m)  # total ice thickness after melt
+
+        self.m = self.melt_rate() # calculate the meltrate
+        self.h = np.heaviside(self.H, 0) * self.melt_drain() # melt ice and let it seep
+        self.H = np.heaviside(self.H, 0) * (self.H - self.dt * self.m) # total ice thickness after melt
         self.rebalance_floe()
-        self.calc_psi()
+        self.psi = self.calc_psi()
         self.h = np.heaviside(self.H, 0) * (self.h + self.horizontal_flow())  # update water depth after horizontal flow
         # self.h = np.heaviside(self.h, 0) * self.h
 
