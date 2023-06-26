@@ -247,7 +247,7 @@ class CA_model:
         self.m = self.melt_rate() # calculate the meltrate
         self.h = np.heaviside(self.H, 0) * self.melt_drain() # melt ice and let it seep
         self.H = np.heaviside(self.H, 0) * (self.H - self.dt * self.m) # total ice thickness after melt
-        if not self.periodic_bounds == True:
+        if self.periodic_bounds == False:
             self.H[[1,-1],:] = 0
             self.H[:,[1,-1]] = 0
         self.rebalance_floe()
@@ -271,6 +271,15 @@ class CA_model:
             self.step()
 
         return self.h, self.H, self.Ht
+    
+    def equalize(self, N):
+
+        for _ in range(N):
+            self.psi = self.calc_psi()
+            self.h = np.heaviside(self.H, 0) * (self.h + self.horizontal_flow())  # update water depth after horizontal flow
+        
+        return self.h
+
 
 if __name__ == "__main__":
     # initialize model with 'snow dune topography' Popovic et al., 2020
