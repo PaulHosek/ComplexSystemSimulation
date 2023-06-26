@@ -119,6 +119,64 @@ class CAModelTest(unittest.TestCase):
 
         np.testing.assert_array_equal(actual_grad, expected_grad)
 
+    def test_horizontal_flow(self):
+        Ht = np.array([[0.5, 0.6],
+                       [0.7, 0.8]])
+        h = np.array([[0.1, 0.2],
+                      [0.3, 0.4]])
+        dt = 0.01
+        dx = 0.1
+
+        model = CA_model(Ht, h, dt, dx)
+
+        expected_dh = np.zeros(model.psi.shape)
+
+        const = model.dt * model.dx * model.g * model.rho_water * model.pi_h / model.mu
+        axes = [0, 1]
+        rolls = [-1, 1]
+
+        for ax in axes:
+            for roll in rolls:
+                grad = model.gradient(model.psi, roll, ax)
+
+                expected_dh[grad > 0] += const * grad[grad > 0] * np.roll(model.h, roll, axis=ax)[grad > 0]
+                expected_dh[grad < 0] += const * grad[grad < 0] * model.h[grad < 0]
+
+        actual_dh = model.horizontal_flow()
+
+        np.testing.assert_array_equal(actual_dh, expected_dh)
+
+    def test_calc_H0(self):
+        Ht = np.array([[0.5, 0.6],
+                       [0.7, 0.8]])
+        h = np.array([[0.1, 0.2],
+                      [0.3, 0.4]])
+        dt = 0.01
+        dx = 0.1
+
+        model = CA_model(Ht, h, dt, dx)
+
+        expected_H0 = model.psi / (1 - (model.rho_ice / model.rho_water))
+        actual_H0 = model.calc_H0()
+
+        np.testing.assert_array_equal(actual_H0, expected_H0)
+
+    def test_rebalance_floe(self):
+        Ht = np.array([[0.5, 0.6],
+                       [0.7, 0.8]])
+        h = np.array([[0.1, 0.2],
+                      [0.3, 0.4]])
+        dt = 0.01
+        dx = 0.1
+
+        model = CA_model(Ht, h, dt, dx)
+
+        expected_dHt = (((model.H.mean() - model.h.mean()) / (model.rho_ice / model.rho_water + 1)) - model.Ht.mean())
+        expected_Ht = np.heaviside(model.H, 0) * (model.Ht + expected_dHt)
+
+        model.rebalance_floe()
+
+        np.testing.assert_array_equal(model.Ht, expected_Ht)
 
 if __name__ == '__main__':
     unittest.main()

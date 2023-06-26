@@ -1,4 +1,7 @@
 import numpy as np
+import numba as nb
+
+import initial_distributions
 
 
 class CA_model:
@@ -42,12 +45,14 @@ class CA_model:
         self.H = self.Ht + Hb  # calculate total ice thickness
         # self.H = self.calc_H0() # total ice thickness
 
+
     def calc_psi(self):
         """
         Calculate (initial) psi/ surface-to-reference distance.
         """
         return self.Ht + self.h - self.H_ref
 
+    # @nb.jit()
     def melt_rate(self):
         """
         Calculate total melt rate m based on albedo of melt ponds.
@@ -115,6 +120,7 @@ class CA_model:
 
         return grad
 
+
     def horizontal_flow(self):
         """
         Calculates the horizontal flow for all cells based on the ice topography psi
@@ -143,9 +149,10 @@ class CA_model:
         for ax in axes:
             for roll in rolls:
                 grad = self.gradient(self.psi, roll, ax)
-
-                dh[grad > 0] += const * grad[grad > 0] * np.roll(self.h, roll, axis=ax)[grad > 0]
-                dh[grad < 0] += const * grad[grad < 0] * self.h[grad < 0]
+                larger_grad = grad > 0
+                smaller_grad = grad < 0
+                dh[larger_grad] += const * grad[larger_grad] * np.roll(self.h, roll, axis=ax)[larger_grad]
+                dh[smaller_grad] += const * grad[smaller_grad] * self.h[smaller_grad]
 
         return dh
 
@@ -165,9 +172,6 @@ class CA_model:
         self.Ht = np.heaviside(self.H, 0) * (self.Ht + dHt)
 
     def step(self):
-        """
-        Forward the model one time step.
-        """
 
         self.m = self.melt_rate() # calculate the meltrate
         self.h = np.heaviside(self.H, 0) * self.melt_drain() # melt ice and let it seep
@@ -193,3 +197,33 @@ class CA_model:
             self.step()
 
         return self.h, self.H, self.Ht
+
+if __name__ == "__main__":
+    # initialize model with 'snow dune topography' Popovic et al., 2020
+
+    res = 200  # size of the domain
+    mode = 'snow_dune'  # topography type
+    tmax = 2
+    dt = 0.1  # diffusion time and time-step if mode = 'diffusion' or mode = 'rayleigh'
+    g = 1  # anisotropy parameter
+    sigma_h = 0.03  # surface standard deviation
+    snow_dune_radius = 1.  # mean snow dune radius if mode = 'snow_dune'
+    Gaussians_per_pixel = 0.2  # density of snow dunes if mode = 'snow_dune'
+    snow_dune_height_exponent = 1.  # exponent that relates snow dune radius and snow dune height if mode = 'snow_dune'
+
+    mean_freeboard = 0.1
+
+    Tdrain = 10.
+    dt_drain = 0.5  # time and time-step of to drainage
+
+    # create topography
+    Ht_0 = initial_distributions.Create_Initial_Topography(res=res, mode=mode, tmax=tmax, dt=dt, g=g, sigma_h=sigma_h,
+                                                           h=mean_freeboard, snow_dune_radius=snow_dune_radius,
+                                                           Gaussians_per_pixel=Gaussians_per_pixel,
+                                                           number_of_r_bins=150, window_size=5,
+                                                           snow_dune_height_exponent=snow_dune_height_exponent)
+
+    size = res
+    h = np.zeros(shape=(size, size))
+    ca_model = CA_model(Ht_0, h, dt=10, dx=1)
+    h, H, Ht = ca_model.run(1000)
