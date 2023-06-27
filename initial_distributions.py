@@ -141,26 +141,27 @@ def plot_distribution(pdf, X, Y, args):
 def order_distribution(control_parameter, size):
     """
     Generate distribution with some order value.
-    Log(control_parameter) maps linearly to the entropy-based order parameter.
-    Output distribution will consist of uniformly distributed numbers in the half-open interval [0.0, 1.0).
-    :param control_parameter (float): In [0,1]. Determins the order of the topology.
-    :param size (int): Sidelength of the topology.
+    Control parameter maps linearly to the entropy-based order parameter.
+    Output distribution will consist of numbers in the half-open interval [0.0, 1.0).
+    Control Parameter = 1:
+    :param control_parameter (float): In [0,1]. Determines the order of the topology.
+    :param size (int): Side length of the topology.
     :return (2d np.array): Topology; z-lattice only.
     """
 
-    random_distribution = np.random.random((size, size))
+    random_distribution = np.random.normal(loc=0.5,size=(size, size))
     uniform = np.zeros((size, size)) + 0.5
     num_elements = int(size * size * (1-control_parameter))
     indices = np.random.choice(size * size, size=num_elements, replace=False)
     uniform.flat[indices] = random_distribution.flat[indices]
-    return uniform
+    return np.heaviside(uniform, 0)
 
 
 def calculate_order_parameter(distribution=None, control_parameter=None, size=100):
     """
     Calculate the order parameter for a given control parameter or 2d Distribution.
     Order parameter is transformed mean entropy of the system.
-    Scales linearly with control parameter. Is min-max scaled.
+    Scales linearly with control parameter.
     :param control_parameter (float): The control parameter that influences the level of order.
     :return: Order parameter value.
     """
@@ -171,19 +172,26 @@ def calculate_order_parameter(distribution=None, control_parameter=None, size=10
         assert len(distribution.shape) == 2, "Input distribution is not 2D."
         size = len(distribution)
     if control_parameter:
-        random_distribution = np.random.random((size, size))
-        distribution = np.zeros((size, size))
-        num_elements = int(size * size * control_parameter)
-        indices = np.random.choice(size * size, size=num_elements, replace=False)
-        distribution.flat[indices] = random_distribution.flat[indices]
+        distribution = order_distribution(control_parameter)
 
-    order_parameter = (np.nanmean(stats.entropy(distribution)))
-    min_order = 4.410738675746352
-    max_order = 4.605170185988081
-    return (order_parameter - min_order) / (max_order - min_order) * (np.log(100) / np.log(size))
+    def entropy_v4(distribution):
+        """
+        Scaled entropy of the input distribution.
+        :param distribution:
+        :return:
+        """
+        unique_values, value_counts = np.unique(distribution, return_counts=True)
+        probabilities = value_counts / np.sum(value_counts)
+        grid_entropy = stats.entropy(probabilities, base=2)
+        entropy_fully_random = 13.287712379549442 # for grid size 100
+        scale_grid = (np.log(100) / np.log(size))
+        return grid_entropy * (np.log(100) / np.log(size)) / entropy_fully_random
 
 
-def plot_control_order_curve():
+    return entropy_v4(distribution)
+
+
+def plot_curve(order_func):
     """
     Plot the relationship of order and control parameter.
     :return: None
@@ -192,14 +200,17 @@ def plot_control_order_curve():
     order_parameters = []
 
     for control_parameter in control_parameter_range:
-        order_parameter = calculate_order_parameter(control_parameter=control_parameter)
-        order_parameters.append(order_parameter)
+        dist = order_distribution(control_parameter,size=100)
+        res = order_func(dist)
+        order_parameters.append(res)
 
-    plt.plot(control_parameter_range, order_parameters)
+
+    plt.figure(figsize=(12/2,8/2))
+    plt.plot(control_parameter_range, order_parameters,"steelblue")
     plt.xlabel("Control Parameter")
     plt.ylabel("Order Parameter")
     plt.title("Order Parameter vs Control Parameter")
-    plt.show()
+    plt.savefig("order_vs_control parameter", bbox_inches="tight", dpi=300)
 
 
 def Create_Initial_Topography(res=500, mode='snow_dune', tmax=2, dt=0.1, g=1, sigma_h=1., h=0., snow_dune_radius=1.,
