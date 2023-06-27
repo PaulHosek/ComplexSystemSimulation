@@ -1,42 +1,49 @@
+"""
+CA model without any option to turn off individual parts of the model.
+"""
 import numpy as np
-from matplotlib import pyplot as plt
 from numba import types
 from numba.extending import overload_method
 from numba import njit
 
 import initial_distributions
 
+
 @overload_method(types.Array, 'take')
 def array_take(arr, indices, axis=0):
-   if isinstance(indices, types.Array):
-       def take_impl(arr, indices):
-           n = indices.shape
-           res = np.empty(n, arr.dtype)
-           for i in range(n):
+    if isinstance(indices, types.Array):
+        def take_impl(arr, indices):
+            n = indices.shape
+            res = np.empty(n, arr.dtype)
+            for i in range(n):
                 if axis == 0:
                     res[i, :, :, :] = arr[indices[i], :, :, :]
                 elif axis == 1:
-                    res[:, i, :, :] = arr[:, indices[i], :, :]     
+                    res[:, i, :, :] = arr[:, indices[i], :, :]
                 elif axis == 2:
-                    res[:, :, i, :] = arr[:, :, indices[i], :]                                     
-           return res
-       return take_impl
+                    res[:, :, i, :] = arr[:, :, indices[i], :]
+            return res
+
+        return take_impl
+
 
 def roll_indexes(a, indexes, axis=0):
     res = a.take(indexes, axis=axis)
     res = res.reshape(a.shape)
     return res
 
+
 def get_indexes(n, shift):
     shift %= n
     return np.concatenate((np.arange(n - shift, n), np.arange(n - shift)))
+
 
 class CA_model:
     '''
     Model class for the meltpond evolution model by Lüthje, et al. (2006)
     '''
 
-    def __init__(self, Ht, h, dt, dx, periodic_bounds = True, enhanced_melt_rate = True, horizontal_flux = True, ice_melting = True, seepage= True) -> None:
+    def __init__(self, Ht, h, dt, dx, periodic_bounds=True) -> None:
         """
 
         :param Ht: 2D np array, same shape as h, initial ice height
@@ -71,18 +78,12 @@ class CA_model:
 
         # calculate further parameters
         self.psi = self.calc_psi()  # surface topography
-        Hb = (self.rho_ice / self.rho_water * self.Ht.mean() + self.h.mean()) / (1 - self.rho_ice / self.rho_water) # initialize model with constant depth Hb
+        Hb = self.rho_ice / self.rho_water * self.Ht.mean() + self.h.mean()  # initialize model with constant depth Hb
         self.H = self.Ht + Hb  # calculate total ice thickness
         # self.H = self.calc_H0() # total ice thickness
 
         # calculate indices for faster rolling
         self.roll_idx = np.array([get_indexes(self.size, -1), get_indexes(self.size, 1)], dtype=np.int16)
-
-        # define model ingredients
-        self.enhanced_melt_rate = enhanced_melt_rate
-        self.horizontal_flux = horizontal_flux
-        self.ice_melting = ice_melting
-        self.seepage = seepage
 
     def calc_psi(self):
         """
@@ -100,11 +101,8 @@ class CA_model:
         return 1+ m_p/m_i * h/h_max
         :return: m
         """
-        if self.enhanced_melt_rate:
-            return np.where(self.h > self.h_max, 1 + self.m_p / self.m_i,
-                            (1 + self.m_p / self.m_i * self.h / self.h_max)) * self.m_i
-        else:
-            return self.m_i
+        return np.where(self.h > self.h_max, 1 + self.m_p / self.m_i,
+                        (1 + self.m_p / self.m_i * self.h / self.h_max)) * self.m_i
 
     def melt_rate_neighbors(self):
         """
@@ -141,15 +139,7 @@ class CA_model:
         Discretisation of dhdt. Calculates next value for h.
         :return:
         """
-        if self.seepage == False:
-            self.s = 0
-        if self.ice_melting == False:
-            ice_m = 1
-        else:
-            ice_m = (self.rho_ice / self.rho_water)
-
-        return self.h + self.dt * (self.m  * ice_m - self.s)
-
+        return self.h + self.dt * (self.m * (self.rho_ice / self.rho_water) - self.s)
 
     def gradient(self, x, roll, axis):
         """
@@ -165,13 +155,48 @@ class CA_model:
             grad -- the gradient between two cells
         """
         if roll == -1:
-            grad = (roll_indexes(x,self.roll_idx_pm[0], axis = axis))
+            grad = (roll_indexes(x, self.roll_idx_pm[0], axis=axis))
         elif roll == 11:
-            grad = (roll_indexes(x,self.roll_idx_pm[1], axis = axis))
+            grad = (roll_indexes(x, self.roll_idx_pm[1], axis=axis))
         else:
             raise ValueError
 
         return grad
+
+    # def horizontal_flow(self):
+    #     """
+    #     Calculates the horizontal flow for all cells based on the ice topography psi
+    #     Note: happens after vertical drainage
+
+    #     Arguments:
+    #         psi -- 2D array of the ice topography
+    #         dt -- time increment
+    #         dx -- space increment
+
+    #     Returns:
+    #         dh -- change in water height due to horizontal flow
+    #     """
+
+    #     # calculate all constants together
+    #     const = self.dt * self.dx * self.g * self.rho_water * self.pi_h / self.mu
+
+    #     # initialize zero array of water height change
+    #     dh = np.zeros(self.psi.shape)
+
+    #     # define parameters for the neighbors
+    #     axes = [0, 1]
+    #     rolls = [-1, 1]
+
+    #     # calculate the in / out flow for each neighbor and sum them up
+    #     for ax in axes:
+    #         for roll in rolls:
+    #             grad = self.gradient(self.psi, roll, ax)
+    #             larger_grad = grad > 0
+    #             smaller_grad = grad < 0
+    #             dh[larger_grad] += const * grad[larger_grad] * np.roll(self.h, roll, axis=ax)[larger_grad]
+    #             dh[smaller_grad] += const * grad[smaller_grad] * self.h[smaller_grad]
+
+    #     return dh
 
     def horizontal_flow(self):
         """
@@ -200,14 +225,13 @@ class CA_model:
         # calculate the in / out flow for each neighbor and sum them up
         for ax in axes:
             for idx in self.roll_idx:
-                grad = (roll_indexes(self.psi, idx, axis = ax) - self.psi)/self.dx
+                grad = (roll_indexes(self.psi, idx, axis=ax) - self.psi) / self.dx
                 larger_grad = grad > 0
                 smaller_grad = grad < 0
-                dh[larger_grad] += const * grad[larger_grad] * roll_indexes(self.h, idx, axis = ax)[larger_grad]
+                dh[larger_grad] += const * grad[larger_grad] * roll_indexes(self.h, idx, axis=ax)[larger_grad]
                 dh[smaller_grad] += const * grad[smaller_grad] * self.h[smaller_grad]
 
         return dh
-    
 
     def calc_H0(self):
         """
@@ -220,24 +244,21 @@ class CA_model:
         """
         Re-balance the floe by calculating the change in freeboard and updating it
         """
-        # dHt = (((self.H.mean() - self.h.mean()) / (
-        #             self.rho_ice / self.rho_water + 1)) - self.Ht.mean())  # change in Ht for the entire floe due to rebalancing
-        # self.Ht = np.heaviside(self.H, 0) * (self.Ht + dHt)
-
-        self.Ht = (1-(self.rho_ice/self.rho_water)) * self.H - self.h
+        dHt = (((self.H.mean() - self.h.mean()) / (
+                self.rho_ice / self.rho_water + 1)) - self.Ht.mean())  # change in Ht for the entire floe due to rebalancing
+        self.Ht = np.heaviside(self.H, 0) * (self.Ht + dHt)
 
     def step(self):
 
-        self.m = self.melt_rate() # calculate the meltrate
-        self.h = np.heaviside(self.H, 0) * self.melt_drain() # melt ice and let it seep
-        self.H = np.heaviside(self.H, 0) * (self.H - self.dt * self.m) # total ice thickness after melt
+        self.m = self.melt_rate()  # calculate the meltrate
+        self.h = np.heaviside(self.H, 0) * self.melt_drain()  # melt ice and let it seep
+        self.H = np.heaviside(self.H, 0) * (self.H - self.dt * self.m)  # total ice thickness after melt
         if self.periodic_bounds == False:
-            self.H[[1,-1],:] = 0
-            self.H[:,[1,-1]] = 0
+            self.H[[1, -1], :] = 0
+            self.H[:, [1, -1]] = 0
         self.rebalance_floe()
         self.psi = self.calc_psi()
-        if self.horizontal_flux:
-            self.h = np.heaviside(self.H, 0) * (self.h + self.horizontal_flow())  # update water depth after horizontal flow
+        self.h = np.heaviside(self.H, 0) * (self.h + self.horizontal_flow())  # update water depth after horizontal flow
         # self.h = np.heaviside(self.h, 0) * self.h
 
     def run(self, N):
@@ -246,7 +267,7 @@ class CA_model:
 
         Arguments:
             N -- number of time steps
-        
+
         Returns:
             h -- water depth on ice
             H -- total ice thickness
@@ -256,18 +277,20 @@ class CA_model:
             self.step()
 
         return self.h, self.H, self.Ht
-    
+
     def equalize(self, N):
 
         for _ in range(N):
             self.psi = self.calc_psi()
-            self.h = np.heaviside(self.H, 0) * (self.h + self.horizontal_flow())  # update water depth after horizontal flow
-        
+            self.h = np.heaviside(self.H, 0) * (
+                        self.h + self.horizontal_flow())  # update water depth after horizontal flow
+
         return self.h
 
 
 if __name__ == "__main__":
     # initialize model with 'snow dune topography' Popovic et al., 2020
+
     res = 200  # size of the domain
     mode = 'snow_dune'  # topography type
     tmax = 2
@@ -294,8 +317,3 @@ if __name__ == "__main__":
     h = np.zeros(shape=(size, size))
     ca_model = CA_model(Ht_0, h, dt=10, dx=1)
     h, H, Ht = ca_model.run(1000)
-
-    plt.imshow(H)
-
-    plt.show()
-

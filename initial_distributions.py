@@ -149,7 +149,7 @@ def order_distribution(control_parameter, size):
     """
 
     random_distribution = np.random.random((size, size))
-    uniform = np.zeros((size, size))
+    uniform = np.zeros((size, size)) + 0.5
     num_elements = int(size * size * (1-control_parameter))
     indices = np.random.choice(size * size, size=num_elements, replace=False)
     uniform.flat[indices] = random_distribution.flat[indices]
@@ -167,7 +167,7 @@ def calculate_order_parameter(distribution=None, control_parameter=None, size=10
     if distribution is None and control_parameter is None:
         print(control_parameter)
         raise Exception("Provide either an input distribution or a control parameter.")
-    if distribution:
+    if distribution is not None:
         assert len(distribution.shape) == 2, "Input distribution is not 2D."
         size = len(distribution)
     if control_parameter:
@@ -178,9 +178,9 @@ def calculate_order_parameter(distribution=None, control_parameter=None, size=10
         distribution.flat[indices] = random_distribution.flat[indices]
 
     order_parameter = (np.nanmean(stats.entropy(distribution)))
-    min_order = 2.05625
-    max_order = 4.41097
-    return 1- (order_parameter - min_order) / (max_order - min_order) * (np.log(100) / np.log(size))
+    min_order = 4.410738675746352
+    max_order = 4.605170185988081
+    return (order_parameter - min_order) / (max_order - min_order) * (np.log(100) / np.log(size))
 
 
 def plot_control_order_curve():
