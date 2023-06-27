@@ -150,7 +150,7 @@ def order_distribution(control_parameter, size):
 
     random_distribution = np.random.random((size, size))
     uniform = np.zeros((size, size))
-    num_elements = int(size * size * control_parameter)
+    num_elements = int(size * size * (1-control_parameter))
     indices = np.random.choice(size * size, size=num_elements, replace=False)
     uniform.flat[indices] = random_distribution.flat[indices]
     return uniform
@@ -180,7 +180,7 @@ def calculate_order_parameter(distribution=None, control_parameter=None, size=10
     order_parameter = (np.nanmean(stats.entropy(distribution)))
     min_order = 2.05625
     max_order = 4.41097
-    return (order_parameter - min_order) / (max_order - min_order) * (np.log(100) / np.log(size))
+    return 1- (order_parameter - min_order) / (max_order - min_order) * (np.log(100) / np.log(size))
 
 
 def plot_control_order_curve():
