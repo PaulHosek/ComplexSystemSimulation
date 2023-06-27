@@ -149,7 +149,7 @@ def order_distribution(control_parameter, size):
     """
 
     random_distribution = np.random.random((size, size))
-    uniform = np.zeros((size, size))
+    uniform = np.ful((size, size),fill_value=0.5)
     num_elements = int(size * size * (1-control_parameter))
     indices = np.random.choice(size * size, size=num_elements, replace=False)
     uniform.flat[indices] = random_distribution.flat[indices]
