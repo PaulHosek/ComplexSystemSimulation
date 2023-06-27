@@ -173,42 +173,6 @@ class CA_model:
 
         return grad
 
-
-    # def horizontal_flow(self):
-    #     """
-    #     Calculates the horizontal flow for all cells based on the ice topography psi
-    #     Note: happens after vertical drainage
-
-    #     Arguments:
-    #         psi -- 2D array of the ice topography
-    #         dt -- time increment
-    #         dx -- space increment
-
-    #     Returns:
-    #         dh -- change in water height due to horizontal flow
-    #     """
-
-    #     # calculate all constants together
-    #     const = self.dt * self.dx * self.g * self.rho_water * self.pi_h / self.mu
-
-    #     # initialize zero array of water height change
-    #     dh = np.zeros(self.psi.shape)
-
-    #     # define parameters for the neighbors
-    #     axes = [0, 1]
-    #     rolls = [-1, 1]
-
-    #     # calculate the in / out flow for each neighbor and sum them up
-    #     for ax in axes:
-    #         for roll in rolls:
-    #             grad = self.gradient(self.psi, roll, ax)
-    #             larger_grad = grad > 0
-    #             smaller_grad = grad < 0
-    #             dh[larger_grad] += const * grad[larger_grad] * np.roll(self.h, roll, axis=ax)[larger_grad]
-    #             dh[smaller_grad] += const * grad[smaller_grad] * self.h[smaller_grad]
-
-    #     return dh
-
     def horizontal_flow(self):
         """
         Calculates the horizontal flow for all cells based on the ice topography psi
