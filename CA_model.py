@@ -36,7 +36,7 @@ class CA_model:
     Model class for the meltpond evolution model by Lüthje, et al. (2006)
     '''
 
-    def __init__(self, Ht, h, dt, dx, periodic_bounds = True) -> None:
+    def __init__(self, Ht, h, dt, dx, periodic_bounds = True, enhanced_melt_rate = True, horizontal_flux = True, ice_melting = True, seepage= True) -> None:
         """
 
         :param Ht: 2D np array, same shape as h, initial ice height
@@ -79,10 +79,10 @@ class CA_model:
         self.roll_idx = np.array([get_indexes(self.size, -1), get_indexes(self.size, 1)], dtype=np.int16)
 
         # define model ingredients
-        self.enhanced_melt_rate = True
-        self.horizontal_flux = True
-        self.ice_melting = True
-        self.seepage = True
+        self.enhanced_melt_rate = enhanced_melt_rate
+        self.horizontal_flux = horizontal_flux
+        self.ice_melting = ice_melting
+        self.seepage = seepage
 
     def calc_psi(self):
         """
