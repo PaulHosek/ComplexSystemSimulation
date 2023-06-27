@@ -180,7 +180,7 @@ def calculate_order_parameter(distribution=None, control_parameter=None, size=10
     order_parameter = (np.nanmean(stats.entropy(distribution)))
     min_order = 2.05625
     max_order = 4.41097
-    return (order_parameter - min_order) / (max_order - min_order) * (np.log(100) / np.log(size))-.08
+    return (order_parameter - min_order) / (max_order - min_order) * (np.log(100) / np.log(size))
 
 
 def plot_control_order_curve():

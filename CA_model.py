@@ -266,7 +266,6 @@ class CA_model:
 
 if __name__ == "__main__":
     # initialize model with 'snow dune topography' Popovic et al., 2020
-
     res = 200  # size of the domain
     mode = 'snow_dune'  # topography type
     tmax = 2
