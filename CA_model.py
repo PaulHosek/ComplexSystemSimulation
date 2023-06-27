@@ -8,26 +8,62 @@ import initial_distributions
 
 @overload_method(types.Array, 'take')
 def array_take(arr, indices, axis=0):
-   if isinstance(indices, types.Array):
-       def take_impl(arr, indices):
-           n = indices.shape
-           res = np.empty(n, arr.dtype)
-           for i in range(n):
-                if axis == 0:
-                    res[i, :, :, :] = arr[indices[i], :, :, :]
-                elif axis == 1:
-                    res[:, i, :, :] = arr[:, indices[i], :, :]     
-                elif axis == 2:
-                    res[:, :, i, :] = arr[:, :, indices[i], :]                                     
-           return res
-       return take_impl
+    '''
+    Numba implementation of np.take() for faster np.roll.
+
+    Arguments:
+        arr -- ndarray
+        indices -- indices to take
+
+    Keyword Arguments:
+        axis -- defines axis (default: {0})
+
+    Returns:
+        take_impl -- ndarray with values selcted according to indices along axis
+    '''
+    if isinstance(indices, types.Array):
+        def take_impl(arr, indices):
+            n = indices.shape
+            res = np.empty(n, arr.dtype)
+            for i in range(n):
+                    if axis == 0:
+                        res[i, :, :, :] = arr[indices[i], :, :, :]
+                    elif axis == 1:
+                        res[:, i, :, :] = arr[:, indices[i], :, :]     
+                    elif axis == 2:
+                        res[:, :, i, :] = arr[:, :, indices[i], :]                                     
+            return res
+        return take_impl
 
 def roll_indexes(a, indexes, axis=0):
+    '''
+    8x faster implementation of np.roll.
+
+    Arguments:
+        a -- ndarray_
+        indexes -- rolled indices (precomputed)
+
+    Keyword Arguments:
+        axis -- axis along which to roll (default: {0})
+
+    Returns:
+        res -- rolled ndarray
+    '''
     res = a.take(indexes, axis=axis)
     res = res.reshape(a.shape)
     return res
 
 def get_indexes(n, shift):
+    '''
+    Calculates the indices to be used for rolling.
+
+    Arguments:
+        n -- length of array to be rolled
+        shift -- how many cells to shift
+
+    Returns:
+        Indices used for rolling.
+    '''
     shift %= n
     return np.concatenate((np.arange(n - shift, n), np.arange(n - shift)))
 
@@ -227,6 +263,9 @@ class CA_model:
         self.Ht = (1-(self.rho_ice/self.rho_water)) * self.H - self.h
 
     def step(self):
+        '''
+        One model iteration.
+        '''
 
         self.m = self.melt_rate() # calculate the meltrate
         self.h = np.heaviside(self.H, 0) * self.melt_drain() # melt ice and let it seep
@@ -258,6 +297,15 @@ class CA_model:
         return self.h, self.H, self.Ht
     
     def equalize(self, N):
+        '''
+        Used to equalize water level, i.e., no melt or seepage and only horizontal transport
+
+        Arguments:
+            N -- number of iterations
+
+        Returns:
+            h -- new water level
+        '''
 
         for _ in range(N):
             self.psi = self.calc_psi()
