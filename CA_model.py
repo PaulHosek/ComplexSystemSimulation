@@ -83,7 +83,6 @@ class CA_model:
         self.horizontal_flux = True
         self.ice_melting = True
         self.seepage = True
-        self.periodic_boundary = True
 
     def calc_psi(self):
         """
