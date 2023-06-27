@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib import pyplot as plt
 from numba import types
 from numba.extending import overload_method
 from numba import njit
@@ -77,6 +78,13 @@ class CA_model:
         # calculate indices for faster rolling
         self.roll_idx = np.array([get_indexes(self.size, -1), get_indexes(self.size, 1)], dtype=np.int16)
 
+        # define model ingredients
+        self.enhanced_melt_rate = True
+        self.horizontal_flux = True
+        self.ice_melting = True
+        self.seepage = True
+        self.periodic_boundary = True
+
     def calc_psi(self):
         """
         Calculate (initial) psi/ surface-to-reference distance.
@@ -93,8 +101,11 @@ class CA_model:
         return 1+ m_p/m_i * h/h_max
         :return: m
         """
-        return np.where(self.h > self.h_max, 1 + self.m_p / self.m_i,
-                        (1 + self.m_p / self.m_i * self.h / self.h_max)) * self.m_i
+        if self.enhanced_melt_rate:
+            return np.where(self.h > self.h_max, 1 + self.m_p / self.m_i,
+                            (1 + self.m_p / self.m_i * self.h / self.h_max)) * self.m_i
+        else:
+            return self.m_i
 
     def melt_rate_neighbors(self):
         """
@@ -131,7 +142,15 @@ class CA_model:
         Discretisation of dhdt. Calculates next value for h.
         :return:
         """
-        return self.h + self.dt * (self.m * (self.rho_ice / self.rho_water) - self.s)
+        if self.seepage == False:
+            self.s = 0
+        if self.ice_melting == False:
+            ice_m = 1
+        else:
+            ice_m = (self.rho_ice / self.rho_water)
+
+        return self.h + self.dt * (self.m  * ice_m - self.s)
+
 
     def gradient(self, x, roll, axis):
         """
@@ -252,7 +271,8 @@ class CA_model:
             self.H[:,[1,-1]] = 0
         self.rebalance_floe()
         self.psi = self.calc_psi()
-        self.h = np.heaviside(self.H, 0) * (self.h + self.horizontal_flow())  # update water depth after horizontal flow
+        if self.horizontal_flux:
+            self.h = np.heaviside(self.H, 0) * (self.h + self.horizontal_flow())  # update water depth after horizontal flow
         # self.h = np.heaviside(self.h, 0) * self.h
 
     def run(self, N):
@@ -310,3 +330,8 @@ if __name__ == "__main__":
     h = np.zeros(shape=(size, size))
     ca_model = CA_model(Ht_0, h, dt=10, dx=1)
     h, H, Ht = ca_model.run(1000)
+
+    plt.imshow(H)
+
+    plt.show()
+
