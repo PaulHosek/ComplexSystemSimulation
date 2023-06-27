@@ -149,7 +149,7 @@ def order_distribution(control_parameter, size):
     """
 
     random_distribution = np.random.random((size, size))
-    uniform = np.full((size, size), fill_value=0.5)
+    uniform = np.zeros((size, size)) + 0.5
     num_elements = int(size * size * (1-control_parameter))
     indices = np.random.choice(size * size, size=num_elements, replace=False)
     uniform.flat[indices] = random_distribution.flat[indices]
@@ -178,8 +178,8 @@ def calculate_order_parameter(distribution=None, control_parameter=None, size=10
         distribution.flat[indices] = random_distribution.flat[indices]
 
     order_parameter = (np.nanmean(stats.entropy(distribution)))
-    min_order = 2.05625
-    max_order = 4.41097
+    min_order = 4.410738675746352
+    max_order = 4.605170185988081
     return (order_parameter - min_order) / (max_order - min_order) * (np.log(100) / np.log(size))
 
 
