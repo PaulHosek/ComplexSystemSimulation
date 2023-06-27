@@ -89,7 +89,7 @@ def detect_percolation(grid, sidelength):
 
     return False, None
 
-def fractal_dim(ponds, pond_val=-1, ice_val=1, bins = 100):
+def fractal_dim(ponds, pond_val=-1, ice_val=1, bins = 50, min_area = 0):
 
     # get areas and perimeters
     areas, perimeters = perim_area(ponds, pond_val = pond_val, ice_val = ice_val)
@@ -97,18 +97,28 @@ def fractal_dim(ponds, pond_val=-1, ice_val=1, bins = 100):
     # sort arrays
     areas, perimeters = zip(*sorted(zip(areas, perimeters)))
     areas = np.array(areas)
-    perimeters = np.array(perimeters)
+    perimeters = np.array(perimeters)[areas >= min_area]
+    areas = areas[areas >= min_area]
 
     # bin data and get the lowest perimeter for fitting
     areas, perimeters = get_lowest(areas, perimeters, bins = bins)
 
     # Perform curve fitting
-    fit_params, _ = curve_fit(integral_D, np.log10(areas), np.log10(perimeters), p0=None)
+    fit_params, pcov = curve_fit(integral_D, np.log10(areas), np.log10(perimeters), p0=None)
 
     # calculate the expected values
     y_expect = D(np.log10(areas),*fit_params[:4])
 
-    return areas, y_expect
+    if len(areas > 7):
+        Dims = []
+        for i in range(3, len(areas)-3):
+            dim = 2* (np.log(perimeters[i+3])-np.log(perimeters[i-3]))/(np.log(areas[i+3])-np.log(areas[i-3]))
+            Dims.append(dim)
+        
+        return areas, y_expect, pcov, areas[3:-3], np.array(Dims)
+    
+    else:
+        return areas, y_expect, pcov, np.array([]), np.array([])
 
 # Define the function D(x) and its integral
 def integral_D(x, a1, a2, a3, a4, a5):

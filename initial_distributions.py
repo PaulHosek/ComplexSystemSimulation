@@ -264,7 +264,7 @@ def Create_Initial_Topography(res=500, mode='snow_dune', tmax=2, dt=0.1, g=1, si
         for i in range(len(r0_bins)):
             r = r0_bins[i]
             h0 = r ** snow_dune_height_exponent / snow_dune_radius ** snow_dune_height_exponent
-            cov = np.eye(2);
+            cov = np.eye(2)
             cov[1, 1] = g
             cov *= r ** 2
 
@@ -277,7 +277,7 @@ def Create_Initial_Topography(res=500, mode='snow_dune', tmax=2, dt=0.1, g=1, si
             y = x.copy()
             X, Y = np.meshgrid(x, y)
             pos = np.empty(X.shape + (2,))
-            pos[:, :, 0] = X;
+            pos[:, :, 0] = X
             pos[:, :, 1] = Y
 
             G = rv.pdf(pos) * 2 * np.pi * np.sqrt(np.linalg.det(cov)) * h0

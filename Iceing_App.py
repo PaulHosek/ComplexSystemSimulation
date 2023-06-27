@@ -38,20 +38,25 @@ def plot_state():
     st.session_state.axs = st.session_state.fig.subplot_mosaic([['Left', 'TopRight'],['Left', 'BottomRight']],
                         gridspec_kw={'width_ratios':[2, 1]})
     
+    #titles
     st.session_state.axs['Left'].set_title('Melt Pond Topology')
     st.session_state.axs['TopRight'].set_title('Convergence')
     st.session_state.axs['BottomRight'].set_title('Perimeters')
 
+    #formatting
     st.session_state.axs['TopRight'].set_title('Convergence')
+    st.session_state.axs['TopRight'].set_xlabel('Iterations')
+    st.session_state.axs['TopRight'].set_ylabel('Sum of ponds')
     st.session_state.axs['BottomRight'].set_yscale('log')
     st.session_state.axs['BottomRight'].set_xscale('log')
-    st.session_state.axs['BottomRight'].set_xlabel("waaaaa")
+    st.session_state.axs['BottomRight'].set_xlabel("Area")
+    st.session_state.axs['BottomRight'].set_ylabel("Perimeter")
 
+    #remove labels and ticks from left plot
+    st.session_state.axs["Left"].tick_params(left=False,right = False , labelleft = False ,
+                labelbottom = False, bottom = False)
+    
     st.session_state.axs['Left'].imshow(st.session_state.model.s,cmap=cmap,norm=norm)
-
-    #clear old figures
-    st.session_state.axs["TopRight"].clear()
-    st.session_state.axs["BottomRight"].clear()
 
     #calculate the perim area and plot
     areas, perimeters = perim_area(st.session_state.model.s, pond_val = -1, ice_val = 1)
@@ -67,7 +72,7 @@ def plot_state():
 #create sliders and buttons
 with st.sidebar:
     with st.form(key="simulation_param"):
-        input_fraction = st.slider('Initial fraction of meltponds', 0.0, 1.0, 0.1)
+        input_fraction = st.slider('Initial fraction of meltponds', 0.0, 1.0, 0.45)
         topology = st.selectbox('Initial topology', ["normal","snow dune","diffusion","kayleigh"])
         st.session_state.initialize = st.form_submit_button(label="Initialize domain")
         st.session_state.start_sim_clicked = st.form_submit_button(label="Start Simulation")
