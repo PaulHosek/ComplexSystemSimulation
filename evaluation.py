@@ -234,7 +234,7 @@ def make_plots(experiment_name, threshold=0.01):
         plt.savefig(f"experiments/{experiment_name}/figures/{run[0].replace('.npy', '')}.png", dpi=300)
 
 
-def entropy_v4(z_values):
+def entropy_v4(z_values,size):
     unique_values, value_counts = np.unique(z_values, return_counts=True)
     probabilities = value_counts / np.sum(value_counts)
     grid_entropy = stats.entropy(probabilities, base=2)
