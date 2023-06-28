@@ -174,7 +174,7 @@ def calculate_order_parameter(distribution=None, control_parameter=None, size=10
     if control_parameter:
         distribution = order_distribution(control_parameter)
 
-    def entropy_v4(distribution):
+    def entropy_v4(distribution,size):
         """
         Scaled entropy of the input distribution.
         :param distribution:
@@ -188,7 +188,19 @@ def calculate_order_parameter(distribution=None, control_parameter=None, size=10
         return grid_entropy * (np.log(100) / np.log(size)) / entropy_fully_random
 
 
-    return entropy_v4(distribution)
+    return entropy_v4(distribution,size)
+
+def entropy_topology_scale(z_values,size):
+    unique_values, value_counts = np.unique(z_values, return_counts=True)
+    probabilities = value_counts / np.sum(value_counts)
+    grid_entropy = stats.entropy(probabilities, base=2)
+    entropy_fully_random = 13.287712379549442
+    return grid_entropy * (np.log(100) / np.log(size)) / entropy_fully_random
+
+def entropy_topology_noscale(z_values):
+    unique_values, value_counts = np.unique(z_values, return_counts=True)
+    probabilities = value_counts / np.sum(value_counts)
+    return stats.entropy(probabilities, base=2)
 
 
 def plot_curve(order_func):
