@@ -7,6 +7,11 @@ from matplotlib.gridspec import GridSpec
 import os
 from matplotlib import colors
 import re
+import initial_distributions
+import scipy.stats as stats
+import evaluation
+from CA_model import CA_model
+from skimage.transform import resize
 
 # make a color map of fixed colors
 cmap = colors.ListedColormap(['cyan', 'white', 'blue'])
@@ -366,7 +371,6 @@ def fractal_dim_from_ap(areas, perimeters, bins = 50, min_area=0):
     else:
         return None
 
-
 def inflection_list(ponds):
     """
     This function calculates a list of mean inflection value.
@@ -385,3 +389,84 @@ def inflection_list(ponds):
             inflection_list.append(point)
 
     return inflection_list
+
+def get_percentile_rows(data, column_index, percentile):
+    # Sort the array based on the specified column
+    sorted_data = data[data[:, column_index].argsort()]
+
+    # Calculate the index corresponding to the specified percentile
+    percentile_index = int(percentile * len(sorted_data))
+
+    # Extract the rows based on the percentile index
+    bottom_percentile_rows = sorted_data[:percentile_index]
+    top_percentile_rows = sorted_data[::-1][:percentile_index]
+
+    return bottom_percentile_rows, top_percentile_rows
+
+def plot_regress(bottom, upper):
+    regression_bottom = stats.linregress(bottom)
+    regression_upper = stats.linregress(upper)
+    plt.figure()
+    plt.scatter(bottom[:,0],bottom[:,1],alpha=0.5)
+    plt.scatter(upper[:,0],upper[:,1],alpha=0.5, color="green")
+    # plt.xscale('log')
+    # plt.yscale('log')
+    plt.xlim((-5,500))
+    plt.ylim((-5,500))
+    plt.plot(bottom[:,0], regression_bottom.intercept + regression_bottom.slope*bottom[:,0], 'r', label='fitted line')
+    plt.plot(upper[:,0], regression_upper.intercept + regression_upper.slope*upper[:,0], 'r', label='fitted line')
+    plt.show()
+    print(regression_bottom.slope,regression_upper.slope)
+
+def compare_slopes(lm1, lm2):
+    """
+    T-test between 2 regression slopes.
+    Based on:
+    Paternoster, R., Brame, R., Mazerolle, P., & Piquero, A. R. (1998).
+    Using the Correct Statistical Test for the Equality of Regression
+    Coefficients. Criminology, 36(4), 859–866.
+
+    :param lm1:
+    :param lm2:
+    :return:
+    """
+    b1, sterr1 = lm1.slope, lm1.stderr
+    b2, sterr2 = lm2.slope, lm2.stderr
+    z = (b1-b2)/ np.sqrt(sterr1**2 + sterr2**2)
+    p_val = stats.norm.sf(abs(z))
+    return z, p_val
+
+def main_topography_change_order(size = 1000):
+    control_parameter_range = np.linspace(0.1, 1, 20)
+    # control_parameter_range = [0]
+    entropys = []
+    order_parameters = []
+    percentile = .3
+    for control_parameter in control_parameter_range:
+        # distribution
+        dist = initial_distributions.order_distribution(control_parameter,size=size)
+
+        # model
+        h = np.zeros((size,size))
+        ca_model = CA_model(dist,h , dt=15, dx=1, periodic_bounds=True)
+        h, H, Ht = ca_model.run(5000)
+
+
+
+        # evaluation
+        entropys.append(evaluation.entropy_v4(dist,size))
+        areas, perimeters = evaluation.perim_area(np.where(h<=0,1,-1), pond_val = -1, ice_val = 1)
+        data = np.asarray([areas, perimeters]).T
+
+        top_percentile_rows, bottom_percentile_rows = get_percentile_rows(data, 1, percentile)
+
+        try:
+            regression_bottom = stats.linregress(bottom_percentile_rows)
+            regression_upper = stats.linregress(top_percentile_rows)
+            z, p_val = compare_slopes(regression_upper,regression_bottom)
+        except:
+            # Did not find enough clusters to build regression, so the few we have must be simple.
+            p_val = 1
+
+        order_parameters.append(p_val)
+    return control_parameter_range, order_parameters, entropys
