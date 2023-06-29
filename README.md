@@ -5,22 +5,19 @@ This repository contains code for the UVA Master course *Complex Systems Simulat
 
 ![alt text](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/The%20albedo%20effect_Perovich.jpg)
 
-Two different model approaches were used. The first is an adaptation of the Ising model that simply redistributes an initial fraction of meltponds. The second is a more physics informed model that models the vertical and horizontal flow of melt water.
+Two different model approaches were used. The first is an adaptation of the Ising model that simply redistributes an initial fraction of meltponds (Iceing). The second is a more physics informed model that models the vertical and horizontal flow of melt water (CA_model).
 
 ### Installation
+The project has been published to PyPi and can be installed by:
 
+`pip install ComplexSystemSimulation`
 
 #### How to run
 
-Just run `server.py` file. It will open mesa board in your browser. You will see charts there of the simulation.
-The server has some sliders, that can be used to change the initial model parameters. Its effects can only be seen after the model has
-been restarted (the reset button on top of the browser has been pressed).
+The simple Iceing model uses a web interface to run the simulations. The interface can be opened by running the following command:
+`streamlit run web_interface.py`
 
-Regarding the Sensitivity Analysis, run the `sensitivity_analysis.py` file. This will produce the results and plots 
-of the sensitivity analysis techniques used. 
 
-In order to see the results of the conducted experiments, run the `run_experiments.py` file. You will see plots 
-with the results of the experiments.
 
 #### Structure
 
