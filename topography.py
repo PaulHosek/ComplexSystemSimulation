@@ -1,8 +1,14 @@
+"""
+This file generates initial model topologies that can be used to test how different initial conditions
+affect our model.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 import imageio.v3 as iio
 from scipy import ndimage
+
 
 
 def build_2d_gaussian(mean=(0, 0), covar=0, random_seed=1000, size=100):
