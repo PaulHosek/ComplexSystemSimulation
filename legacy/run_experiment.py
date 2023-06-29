@@ -4,7 +4,7 @@ This file can be used to run our CA model (outdated version).
 
 import numpy as np
 import os
-from initial_distributions import Create_Initial_Topography,order_distribution
+from topography import Create_Initial_Topography,order_distribution
 from CA_model import CA_model
 
 #Parameters:

@@ -10,7 +10,7 @@ from matplotlib.gridspec import GridSpec
 import os
 from matplotlib import colors
 import re
-import initial_distributions
+import topography
 import scipy.stats as stats
 import evaluation
 from CA_model import CA_model

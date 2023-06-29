@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from numba import types
 from numba.extending import overload_method
-import initial_distributions
+import topography
 
 @overload_method(types.Array, 'take')
 def array_take(arr, indices, axis=0):
