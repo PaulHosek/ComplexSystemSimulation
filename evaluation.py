@@ -367,9 +367,9 @@ def fractal_dim_from_ap(areas, perimeters, bins = 50, min_area=0):
         return None
 
 
-def mean_inflation_pont(ponds):
+def inflation_list(ponds):
     """
-    This function calculates the average mean inflection value.
+    This function calculates a list of mean inflection value.
     :param ponds:
     :return: mean inflection value.
     """
