@@ -1,6 +1,6 @@
 /.pytest_cache/
 /.ipynb_checkpoints/
 /test_figs/
-/DS_Store/
+/.DS_Store
 /experiments/
 /plotting.ipynb

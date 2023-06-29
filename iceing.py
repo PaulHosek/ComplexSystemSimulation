@@ -122,7 +122,7 @@ class iceing_model:
         size = self.size
         F_in = self.F_in
         # make random ice water configuration with F_in as fraction of water
-        s = np.ones(size**2)
+        s = np.ones(size**2, dtype=np.int8)
         s[:int(F_in * size**2)] = -1
         np.random.shuffle(s)
 

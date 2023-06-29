@@ -117,9 +117,9 @@ def fractal_dim(ponds, pond_val=-1, ice_val=1, bins = 50, min_area = 0):
     try:
         # Perform curve fitting
         fit_params, pcov = curve_fit(integral_D, np.log10(areas), np.log10(perimeters), p0=None)
-
+        areas_plot = 10**np.linspace(0,np.log10(areas.max()),1000)
         # calculate the expected values
-        y_expect = D(np.log10(areas),*fit_params[:4])
+        y_expect = D(np.log10(areas_plot),*fit_params[:4])
     except: # RuntimeError:
         return  np.array([]), np.array([]), np.array([]), np.array([]), np.array([])
 
@@ -129,7 +129,7 @@ def fractal_dim(ponds, pond_val=-1, ice_val=1, bins = 50, min_area = 0):
             dim = 2* (np.log(perimeters[i+3])-np.log(perimeters[i-3]))/(np.log(areas[i+3])-np.log(areas[i-3]))
             Dims.append(dim)
         
-        return areas, y_expect, pcov, areas[3:-3], np.array(Dims)
+        return areas_plot, y_expect, pcov, areas[3:-3], np.array(Dims)
     
     else:
         return  areas, y_expect, pcov, np.array([]), np.array([])
@@ -164,8 +164,16 @@ def get_lowest(areas_sorted, perimeters_sorted, bins=100):
 
     return np.array(areas_binned), np.array(min_perimeters)   
 
-# Define a function to extract the numeric part of the filename
 def extract_number(filename):
+    '''
+    function to extract the numeric part of the filename
+
+    Arguments:
+        filename -- string
+
+    Returns:
+        integer in filename
+    '''
     match = re.search(r"_i=(\d+)", filename)
     if match:
         return int(match.group(1))
@@ -224,6 +232,50 @@ def make_plots(experiment_name, threshold = 0.01):
             ax3.set_xscale('log')
             ax3.set_xlabel('area [m^2]')
             ax3.set_ylabel('fractal dimension')
+            ax3.set_ylim([.5, 3])
+
+        plt.tight_layout()
+        plt.savefig(f"experiments/{experiment_name}/figures/{run[0].replace('.npy','')}.png", dpi = 300)
+
+def make_plots_no_fracking(experiment_name, threshold = 0.01):
+
+    #create figure folders
+    if not os.path.exists(f"experiments/{experiment_name}/figures/"):
+        os.mkdir(f"experiments/{experiment_name}/figures")
+
+    h_filenames = sorted(os.listdir(f"experiments/{experiment_name}/pond"), key = extract_number)
+    H_filenames = sorted(os.listdir(f"experiments/{experiment_name}/ice"), key = extract_number)
+
+    ice_fraction = []
+    pond_fraction = []
+    ocean_fraction = []
+
+    for run in zip(h_filenames, H_filenames):
+        h = np.load(f"experiments/{experiment_name}/pond/{run[0]}")
+        H = np.load(f"experiments/{experiment_name}/ice/{run[1]}")
+
+        plot_array = np.where(H>0, 1, 5)
+        plot_array = np.where(h>threshold, 0, plot_array)
+
+        ice_fraction.append(np.sum(plot_array==1)/len(plot_array)**2)
+        pond_fraction.append(np.sum(plot_array==0)/len(plot_array)**2)
+        ocean_fraction.append(np.sum(plot_array==5)/len(plot_array)**2)
+
+        plt.clf()
+        # define figure layout
+        fig = plt.figure(figsize=(12, 6))
+        gs = GridSpec(3, 4, figure=fig)
+        ax1 = fig.add_subplot(gs[:, 0:2])
+        ax2 = fig.add_subplot(gs[1, 2:4])
+
+        ax1.imshow(plot_array, cmap=cmap, norm=norm)
+
+        ax2.plot(ice_fraction, label = 'ice')
+        ax2.plot(pond_fraction, label = 'pond')
+        ax2.plot(ocean_fraction, label = 'ocean')
+        ax2.set_title('area fractions')
+        ax2.set_ylim([0, 1])
+        ax2.legend(loc='center left')
 
         plt.tight_layout()
         plt.savefig(f"experiments/{experiment_name}/figures/{run[0].replace('.npy','')}.png", dpi = 300)

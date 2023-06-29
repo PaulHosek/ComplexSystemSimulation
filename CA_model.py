@@ -100,6 +100,7 @@ class CA_model:
         self.rho_ice = 900  # density of ice [kg/m^3]
         self.s = 0.008 / (3600 * 24)  # seepage rate [m/s]
         self.pi_h = 3e-9  # horizontal permeability of sea ice [m^2]
+        #self.pi_h = 3e-8  # horizontal permeability of sea ice [m^2] faster for testing
         self.mu = 1.79e-3  # [kg/(m*s)] dynamic viscosity
         self.m_i = 0.012 / (3600 * 24)  # unponded ice melt rate [m/s]
         self.m_p = 0.02 / (3600 * 24)  # max ice melt rate under pond [m/s]
@@ -107,7 +108,7 @@ class CA_model:
 
         # calculate further parameters
         self.psi = self.calc_psi()  # surface topography
-        Hb = (self.rho_ice / self.rho_water * self.Ht.mean() + self.h.mean()) / (1 - self.rho_ice / self.rho_water) # initialize model with constant depth Hb
+        Hb = 0.1 #(self.rho_ice / self.rho_water * self.Ht.mean() + self.h.mean()) / (1 - self.rho_ice / self.rho_water) # initialize model with constant depth Hb
         self.H = self.Ht + Hb  # calculate total ice thickness
         # self.H = self.calc_H0() # total ice thickness
 
@@ -258,9 +259,11 @@ class CA_model:
         """
         # dHt = (((self.H.mean() - self.h.mean()) / (
         #             self.rho_ice / self.rho_water + 1)) - self.Ht.mean())  # change in Ht for the entire floe due to rebalancing
-        # self.Ht = np.heaviside(self.H, 0) * (self.Ht + dHt)
 
-        self.Ht = (1-(self.rho_ice/self.rho_water)) * self.H - self.h
+        dHt = self.h.mean() + (1- self.rho_ice/self.rho_water) * self.H.mean() - self.Ht.mean()
+        self.Ht = np.heaviside(self.H, 0) * (self.Ht + dHt)
+
+        # self.Ht = (1-(self.rho_ice/self.rho_water)) * self.H - self.h
 
     def step(self):
         '''
@@ -277,6 +280,7 @@ class CA_model:
         self.psi = self.calc_psi()
         if self.horizontal_flux:
             self.h = np.heaviside(self.H, 0) * (self.h + self.horizontal_flow())  # update water depth after horizontal flow
+            #self.equalize(10)
         # self.h = np.heaviside(self.h, 0) * self.h
 
     def run(self, N):
