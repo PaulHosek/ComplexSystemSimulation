@@ -154,7 +154,7 @@ def order_distribution(control_parameter, size, loc=0.5, std=1):
     num_elements = int(size * size * (1-control_parameter))
     indices = np.random.choice(size * size, size=num_elements, replace=False)
     uniform.flat[indices] = random_distribution.flat[indices]
-    return np.heaviside(uniform, 0)
+    return  uniform #* np.heaviside(uniform, 0)
 
 
 def calculate_order_parameter(distribution=None, control_parameter=None, size=100):
