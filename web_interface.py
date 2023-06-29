@@ -41,7 +41,10 @@ st.write(
 
 def plot_state():
     """plots the state of the Iceing system"""
-        
+    
+    #close any previously opened plots
+    plt.close()
+
     #display initial topography
     st.session_state.fig = plt.figure(constrained_layout=True)
     st.session_state.axs = st.session_state.fig.subplot_mosaic([['Left', 'TopRight'],['Left', 'BottomRight']],

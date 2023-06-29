@@ -33,11 +33,11 @@ h = np.zeros((size,size))
 model = CA_model(topology, h, dt, dx, periodic_bounds = periodic)
 
 #create experiment folder
-os.mkdir(f"experiments/{experiment_name}")
+# os.mkdir(f"experiments/{experiment_name}")
 
 #create state folders
-os.mkdir(f"experiments/{experiment_name}/pond")
-os.mkdir(f"experiments/{experiment_name}/ice")
+os.mkdir(f"experiment_data/{experiment_name}/pond")
+os.mkdir(f"experiments_data/{experiment_name}/ice")
 
 #run the experiment for number of iterations
 for i in range(iterations):
@@ -47,6 +47,6 @@ for i in range(iterations):
    #save every 1000th state
    if i % 1000 == 0:
       
-      np.save(f"experiments/{experiment_name}/pond/_i={i}",model.h)
-      np.save(f"experiments/{experiment_name}/ice/_i={i}",model.Ht)
+      np.save(f"experiment_data/{experiment_name}/pond/_i={i}",model.h)
+      np.save(f"experiment_data/{experiment_name}/ice/_i={i}",model.Ht)
 

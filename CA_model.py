@@ -338,7 +338,7 @@ if __name__ == "__main__":
     dt_drain = 0.5  # time and time-step of to drainage
 
     # create topography
-    Ht_0 = initial_distributions.Create_Initial_Topography(res=res, mode=mode, tmax=tmax, dt=dt, g=g, sigma_h=sigma_h,
+    Ht_0 = topography.Create_Initial_Topography(res=res, mode=mode, tmax=tmax, dt=dt, g=g, sigma_h=sigma_h,
                                                            h=mean_freeboard, snow_dune_radius=snow_dune_radius,
                                                            Gaussians_per_pixel=Gaussians_per_pixel,
                                                            number_of_r_bins=150, window_size=5,
