@@ -138,7 +138,7 @@ def plot_distribution(pdf, X, Y, args):
     plt.show()
 
 
-def order_distribution(control_parameter, size):
+def order_distribution(control_parameter, size, loc=0.5, std=1):
     """
     Generate distribution with some order value.
     Control parameter maps linearly to the entropy-based order parameter.
@@ -149,8 +149,8 @@ def order_distribution(control_parameter, size):
     :return (2d np.array): Topology; z-lattice only.
     """
 
-    random_distribution = np.random.normal(loc=0.5,size=(size, size))
-    uniform = np.zeros((size, size)) + 0.5
+    random_distribution = np.random.normal(loc=loc,scale=std, size=(size, size))
+    uniform = np.zeros((size, size)) + loc
     num_elements = int(size * size * (1-control_parameter))
     indices = np.random.choice(size * size, size=num_elements, replace=False)
     uniform.flat[indices] = random_distribution.flat[indices]
