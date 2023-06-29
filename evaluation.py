@@ -1,6 +1,9 @@
+"""
+In this file, we evaluate all of the different model states, needed for plotting, determining the inflection point...
+"""
+
 import numpy as np
 import scipy.ndimage as ndimage
-from numba import njit
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec

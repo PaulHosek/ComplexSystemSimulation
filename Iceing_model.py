@@ -1,8 +1,10 @@
+"""
+In this file, the Ising model has been implemented.
+"""
+
 import numpy as np
 from numba import njit
 from scipy.ndimage import label
-
-
 
 @njit
 def glauber(s = np.array, hi = np.array, N = int):

@@ -1,10 +1,14 @@
+"""
+In this file, we develop a web interface to illustrate the capabilities of the icing-model and how a
+change in the model-parameters or in the surface topology affects the overall end result.
+"""
+
 import streamlit as st
 import matplotlib.pyplot as plt
-import plotly.express as px
 import numpy as np
-from iceing import iceing_model
-from iceing import glauber
-from iceing import perim_area
+from Iceing_model import iceing_model
+from Iceing_model import glauber
+from Iceing_model import perim_area
 from matplotlib import colors
 
 st.set_page_config(
