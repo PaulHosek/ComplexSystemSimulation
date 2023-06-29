@@ -132,7 +132,7 @@ def fractal_dim(ponds, pond_val=-1, ice_val=1, bins = 50, min_area = 0):
         return areas_plot, y_expect, pcov, areas[3:-3], np.array(Dims)
     
     else:
-        return  areas, y_expect, pcov, np.array([]), np.array([])
+        return areas, y_expect, pcov, np.array([]), np.array([])
 
 # Define the function D(x) and its integral
 def integral_D(x, a1, a2, a3, a4, a5):
@@ -149,7 +149,6 @@ def get_lowest(areas_sorted, perimeters_sorted, bins=100):
 
     for low, high in zip(area_bins[:-1], area_bins[1:]):
         
-
         # Filter the sorted perimeters based on the current bin's area range
         filtered_perimeters = perimeters_sorted[(np.log10(areas_sorted) >= low) & (np.log10(areas_sorted) < high)]
 
@@ -162,8 +161,9 @@ def get_lowest(areas_sorted, perimeters_sorted, bins=100):
             areas_binned.append(bin_area)
             min_perimeters.append(min_perimeter)
 
-    return np.array(areas_binned), np.array(min_perimeters)   
+    return np.array(areas_binned), np.array(min_perimeters)
 
+# Define a function to extract the numeric part of the filename
 def extract_number(filename):
     '''
     function to extract the numeric part of the filename
@@ -178,7 +178,6 @@ def extract_number(filename):
     if match:
         return int(match.group(1))
     return -1     
-
 
 def make_plots(experiment_name, threshold = 0.01):
 
@@ -279,3 +278,110 @@ def make_plots_no_fracking(experiment_name, threshold = 0.01):
 
         plt.tight_layout()
         plt.savefig(f"experiments/{experiment_name}/figures/{run[0].replace('.npy','')}.png", dpi = 300)
+
+def bootstrapping(ponds, pond_val=-1, ice_val=1, num_bootstrap=100):
+    """
+    This function returns a list of areas and perimeters after bootstrapping has been applied.
+    :param ponds:
+    :param pond_val:
+    :param ice_val:
+    :param num_bootstrap:
+    :return:
+    """
+
+    # get areas and perimeters
+    areas, perimeters = perim_area(ponds, pond_val=pond_val, ice_val=ice_val)
+
+    # Bootstrap resampling
+    areas_bootstrap = []
+    perimeters_bootstrap = []
+
+    for _ in range(num_bootstrap):
+        indices = np.random.choice(len(areas), size=len(areas), replace=True)
+        areas_sampled = areas[indices]
+        perimeters_sampled = perimeters[indices]
+
+        areas_bootstrap.append(areas_sampled)
+        perimeters_bootstrap.append(perimeters_sampled)
+
+    return areas_bootstrap, perimeters_bootstrap
+
+
+def inv_D(y, a1, a2, a3, a4):
+    """
+    This function returns the inverse of D.
+    :param y:
+    :param a1:
+    :param a2:
+    :param a3:
+    :param a4:
+    :return:
+    """
+    arg = (y-a4)/a1
+
+    x = 10**np.arctanh(arg/a2) + 10**a3
+
+    return x
+
+def fractal_dim_from_ap(areas, perimeters, bins = 50, min_area=0):
+    """
+    This funtion returns, if exists, the inflection point for a given list of areas and perimeters.
+    :param areas:
+    :param perimeters:
+    :param bins:
+    :param min_area:
+    :return:
+    """
+
+    # sort arrays
+    areas, perimeters = zip(*sorted(zip(areas, perimeters)))
+    areas = np.array(areas)
+    perimeters = np.array(perimeters)[areas >= min_area]
+    areas = areas[areas >= min_area]
+
+    # bin data and get the lowest perimeter for fitting
+    areas, perimeters = get_lowest(areas, perimeters, bins=bins)
+
+    try:
+        # Perform curve fitting
+        fit_params, pcov = curve_fit(integral_D, np.log10(areas), np.log10(perimeters), p0=None)
+
+        plot_areas = 10**np.linspace(0,5,1000)
+        # calculate the expected values
+        y_expect = D(np.log10(plot_areas), *fit_params[:4])
+
+        point = (np.max(y_expect) + np.min(y_expect))/2
+
+    except:  # RuntimeError:
+        return None
+
+    if len(areas > 7):
+        Dims = []
+        for i in range(3, len(areas) - 3):
+            dim = 2 * (np.log(perimeters[i + 3]) - np.log(perimeters[i - 3])) / (
+                        np.log(areas[i + 3]) - np.log(areas[i - 3]))
+            Dims.append(dim)
+
+        return point
+    else:
+        return None
+
+
+def mean_inflation_pont(ponds):
+    """
+    This function calculates the average mean inflection value.
+    :param ponds:
+    :return: mean inflection value.
+    """
+
+    areas_bootstrap, perimeters_bootstrap = bootstrapping(ponds,-1,1, 100)
+
+    inflection_list = []
+
+    for i in range(100):
+        point = fractal_dim_from_ap(areas_bootstrap[i],perimeters_bootstrap[i], 50, 0)
+
+        if point != None:
+            inflection_list.append(point)
+
+    return inflection_list
