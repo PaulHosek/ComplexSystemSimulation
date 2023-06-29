@@ -436,7 +436,8 @@ def compare_slopes(lm1, lm2):
     p_val = stats.norm.sf(abs(z))
     return z, p_val
 
-def main_topography_change_order(size = 1000):
+def main_topography_change_order():
+    size = 10_000
     control_parameter_range = np.linspace(0.1, 1, 20)
     # control_parameter_range = [0]
     entropys = []
@@ -448,13 +449,13 @@ def main_topography_change_order(size = 1000):
 
         # model
         h = np.zeros((size,size))
-        ca_model = CA_model(dist,h , dt=15, dx=1, periodic_bounds=True)
-        h, H, Ht = ca_model.run(5000)
+        ca_model = CA_model(dist,h , dt=1, dx=1, periodic_bounds=True)
+        h, H, Ht = ca_model.run(50_000*15) # 15 * because then dt 15 equivalent
 
 
 
         # evaluation
-        entropys.append(evaluation.entropy_v4(dist,size))
+        entropys.append(initial_distributions.entropy_topology_scale(dist,size))
         areas, perimeters = evaluation.perim_area(np.where(h<=0,1,-1), pond_val = -1, ice_val = 1)
         data = np.asarray([areas, perimeters]).T
 
