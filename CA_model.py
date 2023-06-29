@@ -183,7 +183,7 @@ class CA_model:
         if self.seepage == False:
             self.s = 0
         if self.ice_melting == False:
-            ice_m = 1
+            ice_m = 0
         else:
             ice_m = (self.rho_ice / self.rho_water)
 
