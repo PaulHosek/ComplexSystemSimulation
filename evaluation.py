@@ -448,7 +448,7 @@ def main_topography_change_order():
     percentile = .3
     for control_parameter in control_parameter_range:
         # distribution
-        dist = initial_distributions.order_distribution(control_parameter,size=size)
+        dist = topography.order_distribution(control_parameter,size=size)
 
         # model
         h = np.zeros((size,size))
@@ -458,7 +458,7 @@ def main_topography_change_order():
 
 
         # evaluation
-        entropys.append(initial_distributions.entropy_topology_scale(dist,size))
+        entropys.append(topography.entropy_topology_scale(dist,size))
         areas, perimeters = evaluation.perim_area(np.where(h<=0,1,-1), pond_val = -1, ice_val = 1)
         data = np.asarray([areas, perimeters]).T
 
