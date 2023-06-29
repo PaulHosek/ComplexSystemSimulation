@@ -5,6 +5,11 @@ This repository contains code for the UVA Master course *Complex Systems Simulat
 
 ![alt text](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/The%20albedo%20effect_Perovich.jpg)
 
+Two different model approaches were used. The first is an adaptation of the Ising model that simply redistributes an initial fraction of meltponds. The second is a more physics informed model that models the vertical and horizontal flow of melt water.
+
+### Installation
+
+
 #### How to run
 
 Just run `server.py` file. It will open mesa board in your browser. You will see charts there of the simulation.
