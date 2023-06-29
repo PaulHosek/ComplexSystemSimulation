@@ -2,10 +2,12 @@ import unittest
 import numpy as np
 from CA_model import CA_model
 
-
 class CAModelTest(unittest.TestCase):
 
     def test_init(self):
+        """
+        Test the initialization of the CA_model class.
+        """
         Ht = np.array([[0.5, 0.6], [0.7, 0.8]])
         h = np.array([[0.1, 0.2], [0.3, 0.4]])
         dt = 0.01
@@ -18,6 +20,9 @@ class CAModelTest(unittest.TestCase):
         self.assertEqual(model.dx, dx)
 
     def test_constants(self):
+        """
+        Test the values of constants in the CA_model class.
+        """
         filler_array = np.ones((2, 2))
         model = CA_model(filler_array, filler_array, 1, 1)
 
@@ -32,6 +37,9 @@ class CAModelTest(unittest.TestCase):
         self.assertEqual(model.h_max, 0.1, msg="Depth to which melting increases value is incorrect.")
 
     def test_calc_psi(self):
+        """
+        Test the calculation of psi in the CA_model class.
+        """
         Ht = np.array([[1, 1],
                        [1, 1]])
         h = np.array([[0, 1],
@@ -48,6 +56,9 @@ class CAModelTest(unittest.TestCase):
         self.assertTrue(np.array_equal(psi, expected_psi))
 
     def test_melt_rate(self):
+        """
+        Test the calculation of melt rate in the CA_model class.
+        """
         Ht = np.array([[0.5, 0.6],
                        [0.7, 0.8]])
         h = np.array([[0, 0.2],
@@ -75,6 +86,9 @@ class CAModelTest(unittest.TestCase):
         self.assertTrue(np.allclose(melt_rate, expected_melt_rate), msg="Melt rate is incorrect.")
 
     def test_melt_rate_neighbors(self):
+        """
+        Test the calculation of melt rate considering neighbor cells in the CA_model class.
+        """
         Ht = np.array([[0.5, 0.6], [0.7, 0.8]])
         h = np.array([[0.1, 0.2], [0.3, 0.4]])
         dt = 0.01
@@ -89,6 +103,9 @@ class CAModelTest(unittest.TestCase):
         np.testing.assert_array_equal(actual_m, expected_m)
 
     def test_melt_drain(self):
+        """
+        Test the calculation of water level after melting and draining in the CA_model class.
+        """
         Ht = np.array([[0.5, 0.6], [0.7, 0.8]])
         h = np.array([[0.1, 0.2], [0.3, 0.4]])
         dt = 0.01
@@ -104,6 +121,9 @@ class CAModelTest(unittest.TestCase):
         np.testing.assert_array_equal(actual_h, expected_h)
 
     def test_gradient(self):
+        """
+        Test the calculation of gradient in the CA_model class.
+        """
         h = np.array([[0.0, 2.0, 3.0],
                       [4.0, 3.5, 6.0]])
         Ht = np.ones((2,3))
@@ -120,6 +140,9 @@ class CAModelTest(unittest.TestCase):
         np.testing.assert_array_equal(actual_grad, expected_grad)
 
     def test_horizontal_flow(self):
+        """
+        Test the calculation of horizontal water flow in the CA_model class.
+        """
         Ht = np.array([[0.5, 0.6],
                        [0.7, 0.8]])
         h = np.array([[0.1, 0.2],
@@ -147,6 +170,9 @@ class CAModelTest(unittest.TestCase):
         np.testing.assert_array_equal(actual_dh, expected_dh)
 
     def test_calc_H0(self):
+        """
+        Test the calculation of H0 (total water level) in the CA_model class.
+        """
         Ht = np.array([[0.5, 0.6],
                        [0.7, 0.8]])
         h = np.array([[0.1, 0.2],
@@ -162,6 +188,9 @@ class CAModelTest(unittest.TestCase):
         np.testing.assert_array_equal(actual_H0, expected_H0)
 
     def test_rebalance_floe(self):
+        """
+        Test the rebalancing of floe height after melting and draining in the CA_model class.
+        """
         Ht = np.array([[0.5, 0.6],
                        [0.7, 0.8]])
         h = np.array([[0.1, 0.2],
@@ -180,3 +209,4 @@ class CAModelTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
