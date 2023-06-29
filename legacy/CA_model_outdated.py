@@ -8,7 +8,6 @@ from numba import njit
 
 import initial_distributions
 
-
 @overload_method(types.Array, 'take')
 def array_take(arr, indices, axis=0):
     if isinstance(indices, types.Array):

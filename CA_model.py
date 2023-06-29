@@ -1,9 +1,11 @@
+"""
+In this file, we develop our Cellular Automata model.
+"""
+
 import numpy as np
 from matplotlib import pyplot as plt
 from numba import types
 from numba.extending import overload_method
-from numba import njit
-
 import initial_distributions
 
 @overload_method(types.Array, 'take')
