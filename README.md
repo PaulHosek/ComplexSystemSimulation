@@ -3,7 +3,7 @@
 #### Introduction
 This repository contains code for the UVA Master course *Complex Systems Simulation*. The aim of the project is to model melt ponds on the arctic sea ice. During summer the arctic ice starts to melt forming ponds of clear water depending on the topography of the ice. Meltponds increase the melt-rate, since water has a lower albedo ( 5-22% level of reflection) than ice (80-95%). This is called the 'albedo feedback mechanism'. Eventually the individual meltponds will merge forming complex and percolating clusters.
 
-![alt text](/Figures/The albedo effect_Perovich.jpg)
+![alt text](Figures/The albedo effect_Perovich.jpg)
 
 #### How to run
 
