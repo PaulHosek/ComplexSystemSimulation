@@ -64,7 +64,7 @@ def plot_state():
 
     #calculate the perim area and plot
     areas, perimeters = perim_area(st.session_state.model.s, pond_val = -1, ice_val = 1)
-    st.session_state.axs['BottomRight'].scatter(areas,perimeters)
+    st.session_state.axs['BottomRight'].scatter(areas,perimeters,marker=".")
 
     #plot convergence measure
     st.session_state.axs["TopRight"].plot(st.session_state.convergence)
