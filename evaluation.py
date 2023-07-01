@@ -142,14 +142,46 @@ def fractal_dim(ponds, pond_val=-1, ice_val=1, bins = 50, min_area = 0):
     else:
         return areas, y_expect, pcov, np.array([]), np.array([])
 
-# Define the function D(x) and its integral
+# Define the function D(x) and its integral to fit fractal Dimensions
 def integral_D(x, a1, a2, a3, a4, a5):
+    '''
+    Integral of D to be fitted to perimeter area data.
+
+    Arguments:
+        x -- variable
+        a1, a2, a3, a4, a5 -- coefficents
+
+    Returns:
+        value of the integral of D(x) given the coefficents
+    '''
     return (a1 / (2 * a2)) * np.log(np.cosh(a2 * (x - a3))) + (a4 / 2) * x + a5
 
 def D(x, a1, a2, a3, a4):
+    '''
+    Function D to display transition in fractal dimension.
+
+    Arguments:
+        x -- variable
+        a1, a2, a3, a4 -- coefficents
+
+    Returns:
+        value of D(x) given the coefficents
+    '''
     return a1 * np.tanh(a2 * (x - a3)) + a4
 
-def get_lowest(areas_sorted, perimeters_sorted, bins=100):
+def get_lowest(areas_sorted, perimeters_sorted, bins=50):
+    '''
+    Extracts the lowest edge from the area - perimeter plot.
+
+    Arguments:
+        areas_sorted -- array with areas
+        perimeters_sorted -- array with corresponding perimeters
+    Keyword Arguments:
+        bins -- number of bins to use (default: {50})
+
+    Returns:
+        data that makes up the lower edge of the area perimeter plot.
+    '''
 
     _ , area_bins = np.histogram(np.log10(areas_sorted), bins = bins)
     areas_binned = []
@@ -188,6 +220,19 @@ def extract_number(filename):
     return -1     
 
 def make_plots(experiment_name, threshold = 0.01):
+    '''
+    Creates and saves plots as .png from experiment data to be merged into .mp4 or .gif.
+    Includes:
+    - imshow of the grid
+    - plot of area fractions through time (ice, ponds, ocean)
+    - fractal dimension plot
+
+    Arguments:
+        experiment_name -- name of the experiment
+
+    Keyword Arguments:
+        threshold -- threshold to use as min water depth for ponds (default: {0.01})
+    '''
 
     #create figure folders
     if not os.path.exists(f"experiments/{experiment_name}/figures/"):
@@ -245,6 +290,18 @@ def make_plots(experiment_name, threshold = 0.01):
         plt.savefig(f"experiments/{experiment_name}/figures/{run[0].replace('.npy','')}.png", dpi = 300)
 
 def make_plots_no_fracking(experiment_name, threshold = 0.01):
+    '''
+    Creates and saves plots as .png from experiment data to be merged into .mp4 or .gif. Does not include a fractal dimension plot.
+    Includes:
+    - imshow of the grid
+    - plot of area fractions through time (ice, ponds, ocean)
+
+    Arguments:
+        experiment_name -- name of the experiment
+
+    Keyword Arguments:
+        threshold -- threshold to use as min water depth for ponds (default: {0.01})
+    '''
 
     #create figure folders
     if not os.path.exists(f"experiments/{experiment_name}/figures/"):
