@@ -91,10 +91,12 @@ The model is initialized randomly with a certain input fraction of meltwater 'F_
 ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Ising.jpeg)
 
 
-![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Ising_movie.mp4)
-
 ## CA_model
 
 This is a physics informed Cellular Automata (CA). The model is adapted from Lüthje et al. 2006. The simulation is initialized with an ice sheet topography. At each time step a fraction of the ice is melted according to a fixed melt rate. Cells that already contain meltwater have increased melt rate due to the albedo feedback mechanism. Subsequently the meltwater is distributed across neighboring cells based on the gradient of the topography. Additionally some meltwater seeps vertically through the porous ice.
 
+
+Solarized dark             |  Solarized Ocean
+:-------------------------:|:-------------------------:
+![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/3D_schematic.png)  |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/3D_topography.jpeg)
 
