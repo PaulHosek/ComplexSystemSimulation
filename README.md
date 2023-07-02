@@ -75,6 +75,7 @@ The states of the experiment will be saved to experiment_data/[experimentname] a
 ├── LICENSE                                         --> Apache License
 ├── model_example.ipynb                             --> Brief example of model behaviours
 ├── percolation_experiments.ipynb                   --> Experiments on when percolation occurs
+├── Presentation.pptx                               --> Presentation of the project containing results
 ├── README.md                                       --> Overview of the project
 ├── requirements.txt                                --> List of requirements for pip install 
 ├── run_experiment.py                               --> Runs an experiment and saves each individual state of the system
