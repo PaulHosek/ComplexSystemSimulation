@@ -20,7 +20,7 @@ The simple Iceing model uses a web interface to run the simulations. The interfa
 
 It can also be found online through:
 
-https://iceing-model.streamlit.app
+[https://iceing-model.streamlit.app](https://the-melt-ponders.streamlit.app/)
 
 The physics informed model can be run by opening the 'run_experiment.py' file and changing the parameters accordingly. Make sure to use a new experiment name. The model is run by:
 
