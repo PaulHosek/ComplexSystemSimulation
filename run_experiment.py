@@ -8,14 +8,22 @@ from topography import Create_Initial_Topography,order_distribution
 from CA_model import CA_model
 
 #Parameters:
-mode = "order"                      #"order", "diffusion","reyleigh", "snow_dune"
-size = 500                          #size of the grid in pixels 
+mode = "snow_dune"                  #"order", "diffusion","reyleigh", "snow_dune"
+size = 200                          #size of the grid in pixels 
 control_parameter =  0.4            #level of uniformity of topology 0-1
-iterations = 100_000              #number of states to evolve in time
-experiment_name = "Test2"            #needed for storing states in folder
+iterations = 100_000                #number of states to evolve in time
+experiment_name = "snow_dune_evolution"           #needed for storing states in folder
 periodic = False                    #use periodic boundaries
-dt = 0.1                            #time discretization
-dx = 40                             #space discretization
+tmax = 2; dt_top = 0.1              #diffusion time and time-step if mode = 'diffusion' or mode = 'rayleigh'
+g = 1                               #anisotropy parameter
+sigma_h = 0.03                      #surface standard deviation
+snow_dune_radius = 1.               #mean snow dune radius if mode = 'snow_dune'  
+Gaussians_per_pixel = 0.2           #density of snow dunes if mode = 'snow_dune'  
+snow_dune_height_exponent = 1.      #exponent that relates snow dune radius and snow dune height if mode = 'snow_dune'
+Tdrain = 10.; dt_drain = 0.5        #time and time-step of to drainage
+dt = 15                             #model time discretization
+dx = 1                              #model space discretization
+
 
 #initialize topography
 if mode == "order":
@@ -33,7 +41,7 @@ h = np.zeros((size,size))
 model = CA_model(topology, h, dt, dx, periodic_bounds = periodic)
 
 #create experiment folder
-# os.mkdir(f"experiments/{experiment_name}")
+os.mkdir(f"experiment_data/{experiment_name}")
 
 #create state folders
 os.mkdir(f"experiment_data/{experiment_name}/pond")

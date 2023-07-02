@@ -72,11 +72,16 @@ The states of the experiment will be saved to experiment_data/[experimentname] a
 ├── evaluation.py                                   --> Functions for analysis and information extraction
 ├── Iceing_model.py                                 --> Functionality of the simple Ising model
 ├── inflection_experiments                          --> Investigations of the fractal dimension phase transition
+├── LICENSE                                         --> Apache License
+├── model_example.ipynb                             --> Brief example of model behaviours
+├── percolation_experiments.ipynb                   --> Experiments on when percolation occurs
 ├── README.md                                       --> Overview of the project
 ├── requirements.txt                                --> List of requirements for pip install 
 ├── run_experiment.py                               --> Runs an experiment and saves each individual state of the system
 ├── setup.py                                        --> Setup file for pip install
+├── topography_experiment.ipynb                     --> Experiments on influence initial topography
 ├── topography.py                                   --> Initial ice sheet topographies
+├── visualisation.ipynb                             --> Notebook for producing initial topography figures
 ├── web_interface.py                                --> Web interface for the Iceing_model
 ```
 
@@ -96,7 +101,7 @@ The model is initialized randomly with a certain input fraction of meltwater 'F_
 
 ### CA_model
 
-This is a physics informed Cellular Automata (CA). The model is adapted from Lüthje et al. 2006. The simulation is initialized with an ice sheet topography. At each time step a fraction of the ice is melted according to a fixed melt rate. Cells that already contain meltwater have increased melt rate due to the albedo feedback mechanism. Subsequently the meltwater is distributed across neighboring cells based on the gradient of the topography. Additionally some meltwater seeps vertically through the porous ice.
+This is a physics informed Cellular Automata (CA). The model is adapted from *Lüthje et al. 2006*. The simulation is initialized with an ice sheet topography. At each time step a fraction of the ice is melted according to a fixed melt rate. Cells that already contain meltwater have increased melt rate due to the albedo feedback mechanism. Subsequently the meltwater is distributed across neighboring cells based on the gradient of the topography. Additionally some meltwater seeps vertically through the porous ice.
 
 The change in meltwater is evolved according to:
 
@@ -131,10 +136,26 @@ Discrete Schematic             |  3D Topography Example
 
 ## Topography
 
-The behaviour of the meltponds is very much dependent on the initial topography of the ice. Therefore experiments were performed with several different initial topographies. Below shows 
+The behaviour of the meltponds is very much dependent on the initial topography of the ice. Therefore experiments were performed with several different initial topographies. Below shows the topographies that were taken from *Popovich 2020*. These topographies are based on LIDAR measurements of actual first year arctic sea ice and are statistically indistinguishable from real topographies. 
 
 Snow Dune            |  Rayleigh |  Diffusion
 :-------------------------:|:-------------------------:|:-------------------------:
 ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_snow_dune_size_50.png)  |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_rayleigh_size_50.png) |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_diffusion_size_50.png)
-:-------------------------:|:-------------------------:|:-------------------------:
+
 ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_snow_dune_size_50.png)  |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_rayleigh_size_50.png) |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_diffusion_size_50.png)
+
+
+For model testing a simple multi valley topography is used. Water should accumulate in the two lower indentations of the ice sheet
+
+Multivalley 3D           |  Multivalley 2D
+:-------------------------:|:-------------------------:
+![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_multi_valley_size_50.png)  |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_multi_valley_size_50.png)
+
+
+To test the influence of topography on the emergent fractal dimension transition a topography is created that includes orders of randomness. The plane is initially completely random. By increasing the order parameter (0-1) the plane becomes increasinly more flat and ordered.
+
+Order = 0           |  Order = 0.9 |  Order = 1.0
+:-------------------------:|:-------------------------:|:-------------------------:
+![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_order_0_size_50.png)  |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_order_0.9_size_50.png) |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_order_1_size_50.png)
+
+![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_order_0_size_50.png)  |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_order_0.9_size_50.png) |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_order_1_size_50.png)
