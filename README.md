@@ -80,9 +80,9 @@ The states of the experiment will be saved to experiment_data/[experimentname] a
 ├── web_interface.py                                --> Web interface for the Iceing_model
 ```
 
-### Models
+## Models
 
-## Iceing_model
+### Iceing_model
 
 This is an adaptation of the famous Ising model used to model the fractal dimension of arctic melt ponds.
 
@@ -94,17 +94,17 @@ The model is initialized randomly with a certain input fraction of meltwater 'F_
 
 
 
-## CA_model
+### CA_model
 
 This is a physics informed Cellular Automata (CA). The model is adapted from Lüthje et al. 2006. The simulation is initialized with an ice sheet topography. At each time step a fraction of the ice is melted according to a fixed melt rate. Cells that already contain meltwater have increased melt rate due to the albedo feedback mechanism. Subsequently the meltwater is distributed across neighboring cells based on the gradient of the topography. Additionally some meltwater seeps vertically through the porous ice.
 
 The change in meltwater is evolved according to:
 
-$\frac{\partial h}{\partial t}=He(h)\left(-s+\frac{\rho_{\text {ice }} \cdot m}{\rho_{\text {water }}}-\frac{g \rho_{\text {water }}}{\mu} \Pi_h \nabla \cdot(h \nabla \Psi)\right)$
+$$\frac{\partial h}{\partial t}=He(h)\left(-s+\frac{\rho_{\text {ice }} \cdot m}{\rho_{\text {water }}}-\frac{g \rho_{\text {water }}}{\mu} \Pi_h \nabla \cdot(h \nabla \Psi)\right)$$
 
 The equation for the evolution of sea-ice surface height $H_t$ , and hence topography, is given by
 
-$\frac{\partial H_t}{\partial t}=\frac{\partial \Psi}{\partial t}-\frac{\partial h}{\partial t}=He(H)(-m)$
+$$\frac{\partial H_t}{\partial t}=\frac{\partial \Psi}{\partial t}-\frac{\partial h}{\partial t}=He(H)(-m)$$
 
 ,where the melt-rate $m$ is given by 
 
@@ -128,3 +128,13 @@ Discrete Schematic             |  3D Topography Example
 :-------------------------:|:-------------------------:
 ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/3D_schematic.png)  |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/3D_topography.jpeg)
 
+
+## Topography
+
+The behaviour of the meltponds is very much dependent on the initial topography of the ice. Therefore experiments were performed with several different initial topographies. Below shows 
+
+Snow Dune            |  Rayleigh |  Diffusion
+:-------------------------:|:-------------------------:|:-------------------------:
+![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_snow_dune_size_50.png)  |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_rayleigh_size_50.png) |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_diffusion_size_50.png)
+:-------------------------:|:-------------------------:|:-------------------------:
+![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_snow_dune_size_50.png)  |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_rayleigh_size_50.png) |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_diffusion_size_50.png)
