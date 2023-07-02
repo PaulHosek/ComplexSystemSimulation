@@ -18,6 +18,10 @@ The simple Iceing model uses a web interface to run the simulations. The interfa
 
 `streamlit run web_interface.py`
 
+It can also be found online through:
+
+https://iceing-model.streamlit.app
+
 The physics informed model can be run by opening the 'run_experiment.py' file and changing the parameters accordingly. Make sure to use a new experiment name. The model is run by:
 
 `python3 run_experiment.py`
