@@ -88,15 +88,48 @@ This is an adaptation of the famous Ising model used to model the fractal dimens
 
 The model is initialized randomly with a certain input fraction of meltwater 'F_in' and ice and an underlying ice sheet topography. At each timestep each cell observes their Von Neumann Neighborhood and changes its state (water or ice) according to the majority of the neighbor states, i.e. when three out of four neighbors are water, then the cell changes to water as well. If the neighbors are inconclusive,i.e. an equal number of water and ice neighbors, then the state of the cell is determined by a 'local magnetisation'. The local magnetisation is determined by the underlying ice sheet topography.
 
+<p align="center">
+<img src="https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Ising.jpeg"  width="300" height="300">
+</p>
+
+
+<p align="center">
 ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Ising.jpeg)
+</p>
+
 
 
 ## CA_model
 
 This is a physics informed Cellular Automata (CA). The model is adapted from Lüthje et al. 2006. The simulation is initialized with an ice sheet topography. At each time step a fraction of the ice is melted according to a fixed melt rate. Cells that already contain meltwater have increased melt rate due to the albedo feedback mechanism. Subsequently the meltwater is distributed across neighboring cells based on the gradient of the topography. Additionally some meltwater seeps vertically through the porous ice.
 
+The change in meltwater is evolved according to:
 
-Solarized dark             |  Solarized Ocean
+$\frac{\partial h}{\partial t}=\operatorname{He}(h)\left(-s+\frac{\rho_{\text {ice }} \cdot m}{\rho_{\text {water }}}-\frac{g \rho_{\text {water }}}{\mu} \Pi_h \nabla \cdot(h \nabla \Psi)\right)$
+
+The equation for the evolution of sea-ice surface height $H_t$ , and hence topography, is given by
+
+$\frac{\partial H_t}{\partial t}=\frac{\partial \Psi}{\partial t}-\frac{\partial h}{\partial t}=\operatorname{He}(H)(-m)$
+
+,where the melt-rate $m$ is given by 
+
+$$
+m=E m_i,
+$$
+
+,where
+
+$$
+\begin{gathered}
+E=\left(1+\frac{m_p}{m_i} \frac{h}{h_{\max }}\right) 0 \leq h \leq h_{\max } \\
+E=1+\frac{m_p}{m_i} h>h_{\max }
+\end{gathered}
+$$
+
+Examples of the discrete domain can be found in the figures below
+
+
+Discrete Schematic             |  3D Topography Example
 :-------------------------:|:-------------------------:
 ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/3D_schematic.png)  |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/3D_topography.jpeg)
 
