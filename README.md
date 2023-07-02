@@ -141,7 +141,6 @@ The behaviour of the meltponds is very much dependent on the initial topography 
 Snow Dune            |  Rayleigh |  Diffusion
 :-------------------------:|:-------------------------:|:-------------------------:
 ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_snow_dune_size_50.png)  |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_rayleigh_size_50.png) |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_diffusion_size_50.png)
-
 ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_snow_dune_size_50.png)  |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_rayleigh_size_50.png) |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_diffusion_size_50.png)
 
 
@@ -157,5 +156,4 @@ To test the influence of topography on the emergent fractal dimension transition
 Order = 0           |  Order = 0.9 |  Order = 1.0
 :-------------------------:|:-------------------------:|:-------------------------:
 ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_order_0_size_50.png)  |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_order_0.9_size_50.png) |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/3D/Topography_order_1_size_50.png)
-
 ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_order_0_size_50.png)  |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_order_0.9_size_50.png) |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Topography/2D/Topography_order_1_size_50.png)
