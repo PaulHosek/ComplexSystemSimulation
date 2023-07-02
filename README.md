@@ -27,7 +27,7 @@ The states of the experiment will be saved to experiment_data/[experimentname] a
 
 #### Structure
 
-
+```
 ├── .idea                                           --> Contains the configuration of the project
 │   ├── ComplexSystemSimulation.iml
 ├── build                                           --> Contains the build for pip installing
@@ -78,6 +78,7 @@ The states of the experiment will be saved to experiment_data/[experimentname] a
 ├── setup.py                                        --> Setup file for pip install
 ├── topography.py                                   --> Initial ice sheet topographies
 ├── web_interface.py                                --> Web interface for the Iceing_model
+```
 
 ### Models
 
