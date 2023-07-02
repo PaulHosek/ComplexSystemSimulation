@@ -93,11 +93,6 @@ The model is initialized randomly with a certain input fraction of meltwater 'F_
 </p>
 
 
-<p align="center">
-![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Ising.jpeg)
-</p>
-
-
 
 ## CA_model
 
@@ -105,11 +100,11 @@ This is a physics informed Cellular Automata (CA). The model is adapted from Lü
 
 The change in meltwater is evolved according to:
 
-$\frac{\partial h}{\partial t}=\operatorname{He}(h)\left(-s+\frac{\rho_{\text {ice }} \cdot m}{\rho_{\text {water }}}-\frac{g \rho_{\text {water }}}{\mu} \Pi_h \nabla \cdot(h \nabla \Psi)\right)$
+$\frac{\partial h}{\partial t}=He(h)\left(-s+\frac{\rho_{\text {ice }} \cdot m}{\rho_{\text {water }}}-\frac{g \rho_{\text {water }}}{\mu} \Pi_h \nabla \cdot(h \nabla \Psi)\right)$
 
 The equation for the evolution of sea-ice surface height $H_t$ , and hence topography, is given by
 
-$\frac{\partial H_t}{\partial t}=\frac{\partial \Psi}{\partial t}-\frac{\partial h}{\partial t}=\operatorname{He}(H)(-m)$
+$\frac{\partial H_t}{\partial t}=\frac{\partial \Psi}{\partial t}-\frac{\partial h}{\partial t}=He(H)(-m)$
 
 ,where the melt-rate $m$ is given by 
 
