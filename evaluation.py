@@ -1,5 +1,5 @@
 """
-In this file, we evaluate all of the different model states, needed for plotting, determining the inflection point...
+This file contains all functions to analyse the models and compare them.
 """
 
 import numpy as np
@@ -347,11 +347,11 @@ def make_plots_no_fracking(experiment_name, threshold = 0.01):
 def bootstrapping(ponds, pond_val=-1, ice_val=1, num_bootstrap=100):
     """
     This function returns a list of areas and perimeters after bootstrapping has been applied.
-    :param ponds:
-    :param pond_val:
-    :param ice_val:
-    :param num_bootstrap:
-    :return:
+    :param ponds: pond data from any model
+    :param pond_val: what value indicates the presence of a pond
+    :param ice_val: what value indicates the presence of a visible ice surface
+    :param num_bootstrap: nr of resampling procedures done
+    :return: bootstrapped areas, bootstrapped perimeters
     """
 
     # get areas and perimeters
@@ -375,12 +375,6 @@ def bootstrapping(ponds, pond_val=-1, ice_val=1, num_bootstrap=100):
 def inv_D(y, a1, a2, a3, a4):
     """
     This function returns the inverse of D.
-    :param y:
-    :param a1:
-    :param a2:
-    :param a3:
-    :param a4:
-    :return:
     """
     arg = (y-a4)/a1
 
