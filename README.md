@@ -88,10 +88,10 @@ This is an adaptation of the famous Ising model used to model the fractal dimens
 
 The model is initialized randomly with a certain input fraction of meltwater 'F_in' and ice and an underlying ice sheet topography. At each timestep each cell observes their Von Neumann Neighborhood and changes its state (water or ice) according to the majority of the neighbor states, i.e. when three out of four neighbors are water, then the cell changes to water as well. If the neighbors are inconclusive,i.e. an equal number of water and ice neighbors, then the state of the cell is determined by a 'local magnetisation'. The local magnetisation is determined by the underlying ice sheet topography.
 
-Solarized dark             |  Solarized Ocean
-:-------------------------:|:-------------------------:
-![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Ising.jpeg)  |  ![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Ising_movie.mp4)
+![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Ising.jpeg)
 
+
+![](https://github.com/PaulHosek/ComplexSystemSimulation/blob/main/Figures/Ising_movie.mp4)
 
 ## CA_model
 
